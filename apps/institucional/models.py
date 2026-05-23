@@ -83,6 +83,7 @@ class EventosIndexPage(Page):
         context["tipos"] = TIPO_EVENTO_CHOICES
         context["tipo_selecionado"] = tipo
         context["apenas_futuros"] = bool(apenas_futuros)
+        context["now"] = timezone.now()
         return context
 
 

@@ -31,9 +31,8 @@
   {% if page_obj.object_list %}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for evento in page_obj.object_list %}
-      {% with futuro=evento.data_inicio|date:"U" > now_ts %}
       <article class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-verde-base transition-all group
-                      {% if not futuro %}opacity-75{% endif %}">
+                      {% if evento.data_inicio < now %}opacity-75{% endif %}">
         {# Cabeçalho colorido #}
         <div class="bg-azul-escuro text-white px-5 py-4 flex items-center justify-between">
           <div>
@@ -77,7 +76,6 @@
           </div>
         </div>
       </article>
-      {% endwith %}
       {% endfor %}
     </div>
     {% include "includes/pagination.html" %}
