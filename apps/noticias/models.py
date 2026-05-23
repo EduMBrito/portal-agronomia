@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.db import models
 from taggit.managers import TaggableManager
 from wagtail.admin.panels import (
@@ -17,6 +18,13 @@ class PostsIndexPage(Page):
 
     class Meta:
         verbose_name = "Feed de Posts"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        posts = PostPage.objects.live().order_by("-data_publicacao")
+        paginator = Paginator(posts, 9)
+        context["page_obj"] = paginator.get_page(request.GET.get("page", 1))
+        return context
 
 
 class PostPage(SeoMixin, Page):
