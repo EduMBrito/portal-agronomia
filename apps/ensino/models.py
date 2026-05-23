@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.db import models
 from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import (
@@ -19,6 +21,25 @@ class DisciplinasIndexPage(Page):
 
     class Meta:
         verbose_name = "Grade de Disciplinas"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        periodo = request.GET.get("periodo")
+
+        disciplinas = DisciplinaPage.objects.live().order_by("periodo", "title")
+        if periodo:
+            disciplinas = disciplinas.filter(periodo=periodo)
+
+        agrupadas = defaultdict(list)
+        for d in disciplinas:
+            agrupadas[d.periodo].append(d)
+
+        context["disciplinas_por_periodo"] = dict(sorted(agrupadas.items()))
+        context["periodos"] = sorted(
+            DisciplinaPage.objects.live().values_list("periodo", flat=True).distinct()
+        )
+        context["periodo_selecionado"] = periodo
+        return context
 
 
 class DisciplinaPage(SeoMixin, Page):
