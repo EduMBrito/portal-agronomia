@@ -8,10 +8,14 @@ from wagtail.documents import urls as wagtaildocs_urls
 urlpatterns = [
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
-    path("", include(wagtail_urls)),
 ]
 
 if settings.DEBUG:
     from debug_toolbar.toolbar import debug_toolbar_urls
     urlpatterns += debug_toolbar_urls()
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Wagtail catchall — deve ficar por último
+urlpatterns += [
+    path("", include(wagtail_urls)),
+]
