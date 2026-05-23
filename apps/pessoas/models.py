@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.db import models
 from modelcluster.fields import ParentalManyToManyField
 from wagtail.admin.panels import (
@@ -36,6 +37,20 @@ class DocentesIndexPage(Page):
 
     class Meta:
         verbose_name = "Listagem de Docentes"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        docentes = DocentePage.objects.live().order_by("nome_completo")
+
+        area_slug = request.GET.get("area")
+        if area_slug:
+            docentes = docentes.filter(areas_conhecimento__slug=area_slug)
+
+        paginator = Paginator(docentes, 12)
+        context["page_obj"] = paginator.get_page(request.GET.get("page", 1))
+        context["areas"] = AreaConhecimento.objects.all()
+        context["area_selecionada"] = area_slug
+        return context
 
 
 class DocentePage(SeoMixin, Page):

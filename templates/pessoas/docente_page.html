@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load wagtailimages_tags wagtailcore_tags %}
+
+{% block title %}{{ page.nome_completo }}{% endblock %}
+{% block meta_description %}{{ page.bio|striptags|truncatechars:160 }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6">
+
+  {# Breadcrumb #}
+  <nav class="text-sm text-[#4A5568] mb-6">
+    <a href="/" class="hover:text-verde-escuro">Início</a>
+    <span class="mx-2">/</span>
+    <a href="{{ page.get_parent.url }}" class="hover:text-verde-escuro">Docentes</a>
+    <span class="mx-2">/</span>
+    <span class="text-azul-escuro font-medium">{{ page.nome_completo }}</span>
+  </nav>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    {# Sidebar — perfil #}
+    <aside class="lg:col-span-1">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden sticky top-6">
+
+        {# Foto #}
+        {% if page.foto %}
+          <div class="aspect-square bg-cinza-campo overflow-hidden">
+            {% image page.foto fill-400x400 class="w-full h-full object-cover" %}
+          </div>
+        {% else %}
+          <div class="aspect-square bg-verde-claro flex items-center justify-center">
+            <svg class="w-24 h-24 text-verde-medio" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+          </div>
+        {% endif %}
+
+        <div class="p-5 space-y-4">
+          <div>
+            <h1 class="text-xl font-bold text-azul-escuro leading-snug">{{ page.nome_completo }}</h1>
+            <p class="text-sm text-[#4A5568] mt-1">{{ page.get_titulacao_display }}</p>
+            <p class="text-xs text-[#4A5568]">{{ page.instituicao_titulacao }}</p>
+          </div>
+
+          {# Email #}
+          <div class="flex items-center gap-2 text-sm">
+            <svg class="w-4 h-4 text-verde-escuro shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <a href="mailto:{{ page.email }}" class="text-azul-medio hover:text-azul-escuro truncate">{{ page.email }}</a>
+          </div>
+
+          {# Lattes #}
+          {% if page.lattes_url %}
+          <div class="flex items-center gap-2 text-sm">
+            <svg class="w-4 h-4 text-verde-escuro shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+            <a href="{{ page.lattes_url }}" target="_blank" rel="noopener" class="text-azul-medio hover:text-azul-escuro">
+              Currículo Lattes
+            </a>
+          </div>
+          {% endif %}
+
+          {# ORCID #}
+          {% if page.orcid %}
+          <div class="flex items-center gap-2 text-sm">
+            <svg class="w-4 h-4 text-verde-escuro shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            <a href="https://orcid.org/{{ page.orcid }}" target="_blank" rel="noopener" class="text-azul-medio hover:text-azul-escuro font-mono text-xs">
+              ORCID {{ page.orcid }}
+            </a>
+          </div>
+          {% endif %}
+
+          {# Áreas #}
+          {% if page.areas_conhecimento.all %}
+          <div>
+            <p class="text-xs font-semibold text-[#4A5568] uppercase tracking-wide mb-2">Áreas de atuação</p>
+            <div class="flex flex-wrap gap-1">
+              {% for area in page.areas_conhecimento.all %}
+                <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-verde-claro text-verde-escuro">
+                  {{ area.nome }}
+                </span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+
+    {# Conteúdo principal #}
+    <div class="lg:col-span-2 space-y-8">
+
+      {# Biografia #}
+      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <h2 class="text-lg font-bold text-verde-escuro mb-4">Biografia</h2>
+        <div class="text-[#1A1A1A] leading-relaxed [&_p]:mb-3 [&_a]:text-azul-medio [&_a]:underline">
+          {{ page.bio|richtext }}
+        </div>
+      </section>
+
+      {# Disciplinas #}
+      {% if page.disciplinas.all %}
+      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <h2 class="text-lg font-bold text-verde-escuro mb-4">Disciplinas</h2>
+        <div class="space-y-2">
+          {% for disciplina in page.disciplinas.live %}
+          <a href="{{ disciplina.url }}" class="flex items-center justify-between p-3 rounded border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all group">
+            <div>
+              <span class="font-medium text-azul-escuro text-sm group-hover:text-verde-escuro">{{ disciplina.title }}</span>
+              <span class="ml-2 text-xs text-[#4A5568]">{{ disciplina.codigo }}</span>
+            </div>
+            <span class="text-xs text-[#4A5568]">{{ disciplina.carga_horaria }}h · {{ disciplina.periodo }}º período</span>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      {# Projetos coordenados #}
+      {% if page.projetos_coordenados.live %}
+      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <h2 class="text-lg font-bold text-verde-escuro mb-4">Projetos Coordenados</h2>
+        <div class="space-y-2">
+          {% for projeto in page.projetos_coordenados.live %}
+          <a href="{{ projeto.url }}" class="block p-3 rounded border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all group">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-medium text-azul-escuro text-sm group-hover:text-verde-escuro">{{ projeto.title }}</span>
+              <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded
+                {% if projeto.status == 'em_andamento' %}bg-verde-claro text-verde-escuro{% else %}bg-gray-100 text-[#4A5568]{% endif %}">
+                {{ projeto.get_status_display }}
+              </span>
+            </div>
+            <p class="text-xs text-[#4A5568]">{{ projeto.get_tipo_display }}</p>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      {# Publicações #}
+      {% if page.publicacoes.live %}
+      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <h2 class="text-lg font-bold text-verde-escuro mb-4">Publicações</h2>
+        <div class="space-y-2">
+          {% for pub in page.publicacoes.live|dictsortreversed:"data_publicacao"|slice:":5" %}
+          <a href="{{ pub.url }}" class="block p-3 rounded border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all group">
+            <p class="font-medium text-azul-escuro text-sm group-hover:text-verde-escuro leading-snug">{{ pub.title }}</p>
+            <p class="text-xs text-[#4A5568] mt-1">{{ pub.get_tipo_display }} · {{ pub.veiculo }} · {{ pub.data_publicacao|date:"Y" }}</p>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
