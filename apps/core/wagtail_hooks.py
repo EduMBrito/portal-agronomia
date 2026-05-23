@@ -75,26 +75,29 @@ class AcoesRapidasPanel(Component):
     order = 30
 
     def render_html(self, parent_context=None):
-        from apps.ensino.models import DisciplinasIndexPage
-        from apps.institucional.models import DocumentosIndexPage, EventosIndexPage
-        from apps.noticias.models import PostsIndexPage
-        from apps.pesquisa.models import ProjetosIndexPage, PublicacoesIndexPage
-        from apps.pessoas.models import DocentesIndexPage
+        from apps.ensino.models import DisciplinaPage, DisciplinasIndexPage
+        from apps.institucional.models import DocumentoPage, DocumentosIndexPage, EventoPage, EventosIndexPage
+        from apps.noticias.models import PostPage, PostsIndexPage
+        from apps.pesquisa.models import ProjetoPage, ProjetosIndexPage, PublicacaoPage, PublicacoesIndexPage
+        from apps.pessoas.models import DocentePage, DocentesIndexPage
 
-        def _add_url(PageType):
-            page = PageType.objects.live().first()
-            if page:
-                return f"/admin/pages/add/{ PageType._meta.app_label }/{ PageType._meta.model_name }/{ page.pk }/"
+        def _add_url(ChildType, ParentType):
+            parent = ParentType.objects.live().first()
+            if parent:
+                return (
+                    f"/admin/pages/add/"
+                    f"{ChildType._meta.app_label}/{ChildType._meta.model_name}/{parent.pk}/"
+                )
             return "#"
 
         links = [
-            ("Docente",      _add_url(DocentesIndexPage)),
-            ("Disciplina",   _add_url(DisciplinasIndexPage)),
-            ("Projeto",      _add_url(ProjetosIndexPage)),
-            ("Publicação",   _add_url(PublicacoesIndexPage)),
-            ("Post / Notícia", _add_url(PostsIndexPage)),
-            ("Evento",       _add_url(EventosIndexPage)),
-            ("Documento",    _add_url(DocumentosIndexPage)),
+            ("Docente",        _add_url(DocentePage,    DocentesIndexPage)),
+            ("Disciplina",     _add_url(DisciplinaPage, DisciplinasIndexPage)),
+            ("Projeto",        _add_url(ProjetoPage,    ProjetosIndexPage)),
+            ("Publicação",     _add_url(PublicacaoPage, PublicacoesIndexPage)),
+            ("Post / Notícia", _add_url(PostPage,       PostsIndexPage)),
+            ("Evento",         _add_url(EventoPage,     EventosIndexPage)),
+            ("Documento",      _add_url(DocumentoPage,  DocumentosIndexPage)),
         ]
 
         btns = "".join(
