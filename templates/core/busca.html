@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{% if query %}Busca: {{ query }}{% else %}Busca{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6">
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-azul-escuro mb-4">Busca</h1>
+
+    <form action="/busca/" method="get" class="flex gap-2 max-w-xl">
+      <input
+        type="search"
+        name="q"
+        value="{{ query }}"
+        placeholder="Buscar docentes, disciplinas, projetos…"
+        autofocus
+        class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+               focus:outline-none focus:ring-2 focus:ring-verde-base focus:border-transparent"
+      >
+      <button type="submit"
+        class="px-5 py-2.5 bg-verde-escuro text-white rounded-lg text-sm font-medium
+               hover:bg-verde-base transition-colors whitespace-nowrap">
+        Buscar
+      </button>
+    </form>
+  </div>
+
+  {% if query %}
+    {% if page_obj.object_list %}
+      <p class="text-sm text-[#4A5568] mb-6">
+        {% with total=page_obj.paginator.count %}
+          {{ total }} resultado{{ total|pluralize:",s" }} para
+          <strong class="text-azul-escuro">&ldquo;{{ query }}&rdquo;</strong>
+        {% endwith %}
+      </p>
+
+      <div class="space-y-4">
+        {% for result in page_obj.object_list %}
+        <article class="bg-white border border-gray-100 rounded-lg p-5 hover:border-verde-base hover:shadow-sm transition-all">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <a href="{{ result.url }}"
+                 class="text-azul-escuro font-semibold hover:text-verde-escuro transition-colors leading-snug block mb-1">
+                {{ result.title }}
+              </a>
+
+              {# Trecho de descrição — usa o primeiro campo disponível por tipo #}
+              <p class="text-sm text-[#4A5568] leading-relaxed line-clamp-2">
+                {% if result.resumo %}
+                  {{ result.resumo|truncatewords:30 }}
+                {% elif result.bio %}
+                  {{ result.bio|striptags|truncatewords:30 }}
+                {% elif result.descricao %}
+                  {{ result.descricao|striptags|truncatewords:30 }}
+                {% elif result.ementa %}
+                  {{ result.ementa|striptags|truncatewords:30 }}
+                {% else %}
+                  &mdash;
+                {% endif %}
+              </p>
+            </div>
+
+            {# Badge de tipo usando verbose_name do ContentType #}
+            <span class="shrink-0 text-[10px] font-bold uppercase tracking-wide
+                         px-2 py-1 rounded bg-azul-claro text-azul-escuro whitespace-nowrap">
+              {{ result.content_type.name }}
+            </span>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      {% include "includes/pagination.html" %}
+
+    {% else %}
+      <div class="py-16 text-center">
+        <p class="text-[#4A5568] mb-2">Nenhum resultado para <strong>&ldquo;{{ query }}&rdquo;</strong>.</p>
+        <p class="text-sm text-[#4A5568]">Tente palavras-chave diferentes ou termos mais curtos.</p>
+      </div>
+    {% endif %}
+
+  {% else %}
+    <p class="text-[#4A5568]">Digite um termo acima para pesquisar em todo o portal.</p>
+  {% endif %}
+
+</div>
+{% endblock %}
