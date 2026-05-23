@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Portal Agronomia{% endblock %} | IFSertãoPE</title>
+  <meta name="description" content="{% block meta_description %}Portal do Curso de Agronomia — IFSertãoPE, Campus Petrolina Zona Rural{% endblock %}">
+
+  <!-- Tailwind CSS Play CDN — substituir por CLI em produção -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'verde-escuro': '#2D6636',
+            'verde-base':   '#3A7D44',
+            'verde-medio':  '#5AAB66',
+            'verde-claro':  '#D4EDDA',
+            'azul-noite':   '#122D52',
+            'azul-escuro':  '#1A3C6E',
+            'azul-medio':   '#2E6DB4',
+            'azul-claro':   '#DBEAFE',
+            'cinza-campo':  '#E8EDE9',
+            'vermelho-if':  '#C0392B',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-cinza-campo text-[#1A1A1A] min-h-screen flex flex-col">
+
+  {% include "includes/header.html" %}
+
+  <main class="flex-1 py-8">
+    {% if messages %}
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-6 space-y-2">
+        {% for message in messages %}
+          <div class="px-4 py-3 rounded text-sm
+            {% if message.tags == 'error' %}bg-red-50 text-vermelho-if border border-red-200
+            {% else %}bg-verde-claro text-verde-escuro border border-verde-base{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "includes/footer.html" %}
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

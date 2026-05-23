@@ -14,3 +14,5 @@ Thumbs.db
 htmlcov/
 .pytest_cache/
 *.mo
+# WSL2
+*:Zone.Identifier

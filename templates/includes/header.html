@@ -1,0 +1,62 @@
+<header class="bg-verde-escuro text-white shadow-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center justify-between h-16">
+
+      <!-- Logo e nome -->
+      <a href="/" class="flex items-center gap-3 hover:opacity-90 transition-opacity">
+        <div>
+          <p class="font-bold text-lg leading-tight">Portal Agronomia</p>
+          <p class="text-[11px] text-verde-claro leading-tight tracking-wide">IFSertãoPE · Petrolina Zona Rural</p>
+        </div>
+      </a>
+
+      <!-- Navegação desktop -->
+      <nav class="hidden lg:flex items-center gap-1 text-sm">
+        <a href="/docentes/"    class="px-3 py-1.5 rounded hover:bg-verde-base transition-colors">Docentes</a>
+        <a href="/disciplinas/" class="px-3 py-1.5 rounded hover:bg-verde-base transition-colors">Disciplinas</a>
+        <a href="/projetos/"    class="px-3 py-1.5 rounded hover:bg-verde-base transition-colors">Projetos</a>
+        <a href="/publicacoes/" class="px-3 py-1.5 rounded hover:bg-verde-base transition-colors">Publicações</a>
+        <a href="/noticias/"    class="px-3 py-1.5 rounded hover:bg-verde-base transition-colors">Notícias</a>
+        <a href="/eventos/"     class="px-3 py-1.5 rounded hover:bg-verde-base transition-colors">Eventos</a>
+        <a href="/documentos/"  class="px-3 py-1.5 rounded hover:bg-verde-base transition-colors">Documentos</a>
+      </nav>
+
+      <!-- Botão hamburger mobile -->
+      <button id="menu-toggle" class="lg:hidden p-2 rounded hover:bg-verde-base transition-colors" aria-label="Abrir menu">
+        <svg id="icon-open"  class="w-6 h-6"        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg id="icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Menu mobile -->
+  <nav id="mobile-menu" class="hidden lg:hidden bg-verde-base border-t border-verde-escuro">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1 text-sm">
+      <a href="/docentes/"    class="px-3 py-2 rounded hover:bg-verde-escuro transition-colors">Docentes</a>
+      <a href="/disciplinas/" class="px-3 py-2 rounded hover:bg-verde-escuro transition-colors">Disciplinas</a>
+      <a href="/projetos/"    class="px-3 py-2 rounded hover:bg-verde-escuro transition-colors">Projetos</a>
+      <a href="/publicacoes/" class="px-3 py-2 rounded hover:bg-verde-escuro transition-colors">Publicações</a>
+      <a href="/noticias/"    class="px-3 py-2 rounded hover:bg-verde-escuro transition-colors">Notícias</a>
+      <a href="/eventos/"     class="px-3 py-2 rounded hover:bg-verde-escuro transition-colors">Eventos</a>
+      <a href="/documentos/"  class="px-3 py-2 rounded hover:bg-verde-escuro transition-colors">Documentos</a>
+    </div>
+  </nav>
+
+  <script>
+    (function () {
+      const btn = document.getElementById('menu-toggle');
+      const menu = document.getElementById('mobile-menu');
+      const iconOpen = document.getElementById('icon-open');
+      const iconClose = document.getElementById('icon-close');
+      btn.addEventListener('click', function () {
+        menu.classList.toggle('hidden');
+        iconOpen.classList.toggle('hidden');
+        iconClose.classList.toggle('hidden');
+      });
+    })();
+  </script>
+</header>

@@ -1,0 +1,9 @@
+{% load wagtailimages_tags %}
+<figure class="my-6">
+  {% image value.image width-800 class="w-full rounded-lg shadow-sm" %}
+  {% if value.caption %}
+    <figcaption class="mt-2 text-center text-sm text-[#4A5568] italic">
+      {{ value.caption }}
+    </figcaption>
+  {% endif %}
+</figure>

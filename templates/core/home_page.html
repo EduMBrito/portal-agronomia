@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block title %}Início{% endblock %}
+
+{% block content %}
+
+{# ─── Hero ─────────────────────────────────────────────────────────────────── #}
+<section class="bg-verde-escuro text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+    <p class="text-verde-claro text-xs font-semibold uppercase tracking-widest mb-3">
+      Instituto Federal do Sertão Pernambucano · Petrolina Zona Rural
+    </p>
+    <h1 class="text-4xl font-bold leading-tight mb-4">Curso de Agronomia</h1>
+    {% if page.intro %}
+      <div class="mt-4 text-verde-claro text-lg leading-relaxed max-w-2xl [&_p]:mb-3 [&_a]:underline">
+        {{ page.intro|richtext }}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{# ─── Números ──────────────────────────────────────────────────────────────── #}
+<section class="bg-white shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-3 divide-x divide-gray-100 py-6 text-center">
+      <div class="px-4">
+        <div class="text-3xl font-bold text-azul-escuro">{{ total_docentes }}</div>
+        <div class="text-xs text-[#4A5568] mt-1 uppercase tracking-wide">Docentes</div>
+      </div>
+      <div class="px-4">
+        <div class="text-3xl font-bold text-azul-escuro">{{ total_disciplinas }}</div>
+        <div class="text-xs text-[#4A5568] mt-1 uppercase tracking-wide">Disciplinas</div>
+      </div>
+      <div class="px-4">
+        <div class="text-3xl font-bold text-verde-escuro">{{ total_projetos }}</div>
+        <div class="text-xs text-[#4A5568] mt-1 uppercase tracking-wide">Projetos ativos</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ─── Eventos + Posts ──────────────────────────────────────────────────────── #}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+    {# Próximos eventos #}
+    <div>
+      <h2 class="text-xl font-bold text-verde-escuro mb-5 pb-2 border-b-2 border-verde-claro">
+        Próximos Eventos
+      </h2>
+      {% if eventos_proximos %}
+        <div class="space-y-3">
+          {% for evento in eventos_proximos %}
+          <article class="bg-white rounded-lg p-4 shadow-sm border border-gray-100 flex gap-4">
+            <div class="bg-verde-claro rounded-lg p-2 text-center min-w-[52px] self-start">
+              <div class="text-xl font-bold text-verde-escuro leading-none">{{ evento.data_inicio|date:"d" }}</div>
+              <div class="text-[10px] text-verde-base uppercase tracking-wide">{{ evento.data_inicio|date:"M" }}</div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-azul-escuro text-sm leading-snug">
+                <a href="{{ evento.url }}" class="hover:text-verde-escuro transition-colors">
+                  {{ evento.title }}
+                </a>
+              </h3>
+              <p class="text-xs text-[#4A5568] mt-1">
+                {{ evento.local }}
+                {% if evento.online %}&middot; <span class="text-azul-medio">Online</span>{% endif %}
+              </p>
+              <span class="inline-block mt-1.5 text-[10px] font-bold uppercase tracking-wide
+                           px-2 py-0.5 rounded bg-verde-claro text-verde-escuro">
+                {{ evento.get_tipo_display }}
+              </span>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        <a href="/eventos/" class="inline-block mt-4 text-sm font-medium text-verde-base hover:text-verde-escuro transition-colors">
+          Ver todos os eventos →
+        </a>
+      {% else %}
+        <p class="text-sm text-[#4A5568]">Nenhum evento próximo cadastrado.</p>
+      {% endif %}
+    </div>
+
+    {# Posts recentes #}
+    <div>
+      <h2 class="text-xl font-bold text-verde-escuro mb-5 pb-2 border-b-2 border-verde-claro">
+        Últimas Notícias
+      </h2>
+      {% if posts_recentes %}
+        <div class="space-y-3">
+          {% for post in posts_recentes %}
+          <article class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <p class="text-xs text-[#4A5568] mb-1.5">
+              {{ post.data_publicacao|date:"d/m/Y" }}
+              &middot; {{ post.autor.nome_completo }}
+            </p>
+            <h3 class="font-semibold text-azul-escuro leading-snug">
+              <a href="{{ post.url }}" class="hover:text-verde-escuro transition-colors">
+                {{ post.title }}
+              </a>
+            </h3>
+            <p class="text-sm text-[#4A5568] mt-2 leading-relaxed line-clamp-2">{{ post.resumo }}</p>
+          </article>
+          {% endfor %}
+        </div>
+        <a href="/noticias/" class="inline-block mt-4 text-sm font-medium text-verde-base hover:text-verde-escuro transition-colors">
+          Ver todas as notícias →
+        </a>
+      {% else %}
+        <p class="text-sm text-[#4A5568]">Nenhuma notícia publicada ainda.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+{# ─── Explorar o portal ────────────────────────────────────────────────────── #}
+<section class="bg-white border-t border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <h2 class="text-2xl font-bold text-azul-escuro mb-8 text-center">Explore o Portal</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+
+      <a href="/docentes/" class="flex flex-col items-center gap-2 p-6 bg-cinza-campo rounded-lg border border-gray-200 hover:border-verde-base hover:bg-verde-claro transition-all group text-center">
+        <svg class="w-8 h-8 text-verde-escuro" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span class="text-sm font-semibold text-azul-escuro group-hover:text-verde-escuro">Docentes</span>
+        <span class="text-xs text-[#4A5568]">Perfis e produção</span>
+      </a>
+
+      <a href="/disciplinas/" class="flex flex-col items-center gap-2 p-6 bg-cinza-campo rounded-lg border border-gray-200 hover:border-verde-base hover:bg-verde-claro transition-all group text-center">
+        <svg class="w-8 h-8 text-verde-escuro" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+        <span class="text-sm font-semibold text-azul-escuro group-hover:text-verde-escuro">Disciplinas</span>
+        <span class="text-xs text-[#4A5568]">Materiais e ementas</span>
+      </a>
+
+      <a href="/projetos/" class="flex flex-col items-center gap-2 p-6 bg-cinza-campo rounded-lg border border-gray-200 hover:border-verde-base hover:bg-verde-claro transition-all group text-center">
+        <svg class="w-8 h-8 text-verde-escuro" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+        </svg>
+        <span class="text-sm font-semibold text-azul-escuro group-hover:text-verde-escuro">Projetos</span>
+        <span class="text-xs text-[#4A5568]">Pesquisa e extensão</span>
+      </a>
+
+      <a href="/publicacoes/" class="flex flex-col items-center gap-2 p-6 bg-cinza-campo rounded-lg border border-gray-200 hover:border-verde-base hover:bg-verde-claro transition-all group text-center">
+        <svg class="w-8 h-8 text-verde-escuro" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <span class="text-sm font-semibold text-azul-escuro group-hover:text-verde-escuro">Publicações</span>
+        <span class="text-xs text-[#4A5568]">Artigos e teses</span>
+      </a>
+
+      <a href="/noticias/" class="flex flex-col items-center gap-2 p-6 bg-cinza-campo rounded-lg border border-gray-200 hover:border-verde-base hover:bg-verde-claro transition-all group text-center">
+        <svg class="w-8 h-8 text-verde-escuro" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+        </svg>
+        <span class="text-sm font-semibold text-azul-escuro group-hover:text-verde-escuro">Notícias</span>
+        <span class="text-xs text-[#4A5568]">Posts dos docentes</span>
+      </a>
+
+      <a href="/eventos/" class="flex flex-col items-center gap-2 p-6 bg-cinza-campo rounded-lg border border-gray-200 hover:border-verde-base hover:bg-verde-claro transition-all group text-center">
+        <svg class="w-8 h-8 text-verde-escuro" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <span class="text-sm font-semibold text-azul-escuro group-hover:text-verde-escuro">Eventos</span>
+        <span class="text-xs text-[#4A5568]">Agenda acadêmica</span>
+      </a>
+
+      <a href="/documentos/" class="flex flex-col items-center gap-2 p-6 bg-cinza-campo rounded-lg border border-gray-200 hover:border-verde-base hover:bg-verde-claro transition-all group text-center">
+        <svg class="w-8 h-8 text-verde-escuro" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
+        </svg>
+        <span class="text-sm font-semibold text-azul-escuro group-hover:text-verde-escuro">Documentos</span>
+        <span class="text-xs text-[#4A5568]">Regulamentos e editais</span>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

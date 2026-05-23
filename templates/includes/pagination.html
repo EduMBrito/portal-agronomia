@@ -1,0 +1,30 @@
+{% if page_obj.has_other_pages %}
+<nav class="flex justify-center items-center gap-2 mt-10" aria-label="Paginação">
+
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}"
+       class="px-4 py-2 rounded bg-white border border-gray-200 text-verde-escuro hover:bg-verde-claro text-sm transition-colors">
+      ← Anterior
+    </a>
+  {% endif %}
+
+  {% for num in page_obj.paginator.page_range %}
+    {% if page_obj.number == num %}
+      <span class="px-4 py-2 rounded bg-verde-escuro text-white text-sm font-bold">{{ num }}</span>
+    {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+      <a href="?page={{ num }}"
+         class="px-4 py-2 rounded bg-white border border-gray-200 text-[#4A5568] hover:bg-verde-claro text-sm transition-colors">
+        {{ num }}
+      </a>
+    {% endif %}
+  {% endfor %}
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}"
+       class="px-4 py-2 rounded bg-white border border-gray-200 text-verde-escuro hover:bg-verde-claro text-sm transition-colors">
+      Próxima →
+    </a>
+  {% endif %}
+
+</nav>
+{% endif %}

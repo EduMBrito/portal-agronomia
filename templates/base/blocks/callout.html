@@ -1,0 +1,20 @@
+{% load wagtailcore_tags %}
+{% if value.tipo == "info" %}
+  <div class="my-4 p-4 bg-azul-claro border-l-4 border-azul-medio rounded-r-lg">
+    <div class="text-azul-escuro text-sm leading-relaxed [&_a]:underline [&_a]:hover:opacity-75">
+      {{ value.texto|richtext }}
+    </div>
+  </div>
+{% elif value.tipo == "atencao" %}
+  <div class="my-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
+    <div class="text-yellow-800 text-sm leading-relaxed [&_a]:underline [&_a]:hover:opacity-75">
+      {{ value.texto|richtext }}
+    </div>
+  </div>
+{% elif value.tipo == "importante" %}
+  <div class="my-4 p-4 bg-red-50 border-l-4 border-vermelho-if rounded-r-lg">
+    <div class="text-vermelho-if text-sm leading-relaxed [&_a]:underline [&_a]:hover:opacity-75">
+      {{ value.texto|richtext }}
+    </div>
+  </div>
+{% endif %}
