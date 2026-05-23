@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6">
+
+  {# Breadcrumb #}
+  <nav class="text-sm text-[#4A5568] mb-6">
+    <a href="/" class="hover:text-verde-escuro">Início</a>
+    <span class="mx-2">/</span>
+    <a href="{{ page.get_parent.url }}" class="hover:text-verde-escuro">Publicações</a>
+    <span class="mx-2">/</span>
+    <span class="text-azul-escuro font-medium truncate">{{ page.title }}</span>
+  </nav>
+
+  <article class="bg-white rounded-lg shadow-sm border border-gray-100 p-8">
+
+    {# Tipo e data #}
+    <div class="flex items-center gap-3 mb-4">
+      <span class="text-xs font-bold uppercase tracking-wide px-2 py-1 rounded bg-azul-claro text-azul-escuro">
+        {{ page.get_tipo_display }}
+      </span>
+      <span class="text-sm text-[#4A5568]">{{ page.data_publicacao|date:"d \d\e F \d\e Y" }}</span>
+    </div>
+
+    {# Título #}
+    <h1 class="text-2xl font-bold text-azul-escuro leading-snug mb-6">{{ page.title }}</h1>
+
+    {# Autores #}
+    <div class="mb-6 pb-6 border-b border-gray-100">
+      <p class="text-xs font-semibold text-[#4A5568] uppercase tracking-wide mb-2">Autores</p>
+      <div class="flex flex-wrap gap-2">
+        {% for autor in page.autores_internos.all %}
+          <a href="{{ autor.url }}" class="text-sm text-azul-medio hover:text-azul-escuro font-medium">
+            {{ autor.nome_completo }}
+          </a>
+        {% endfor %}
+        {% if page.autores_externos %}
+          <span class="text-sm text-[#4A5568]">
+            {% if page.autores_internos.all %}&nbsp;·&nbsp;{% endif %}
+            {{ page.autores_externos }}
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    {# Veículo + identificadores #}
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 pb-6 border-b border-gray-100">
+      <div>
+        <p class="text-xs font-semibold text-[#4A5568] uppercase tracking-wide mb-1">Veículo de publicação</p>
+        <p class="text-sm font-medium text-azul-escuro">{{ page.veiculo }}</p>
+      </div>
+      {% if page.doi %}
+      <div>
+        <p class="text-xs font-semibold text-[#4A5568] uppercase tracking-wide mb-1">DOI</p>
+        <a href="https://doi.org/{{ page.doi }}" target="_blank" rel="noopener"
+           class="text-sm font-mono text-azul-medio hover:text-azul-escuro">
+          {{ page.doi }}
+        </a>
+      </div>
+      {% endif %}
+      {% if page.issn %}
+      <div>
+        <p class="text-xs font-semibold text-[#4A5568] uppercase tracking-wide mb-1">ISSN</p>
+        <p class="text-sm font-mono text-azul-escuro">{{ page.issn }}</p>
+      </div>
+      {% endif %}
+    </div>
+
+    {# Resumo #}
+    <div class="mb-6 pb-6 border-b border-gray-100">
+      <p class="text-xs font-semibold text-[#4A5568] uppercase tracking-wide mb-2">Resumo</p>
+      <p class="text-[#1A1A1A] leading-relaxed">{{ page.resumo }}</p>
+    </div>
+
+    {# Corpo / conteúdo completo #}
+    {% if page.corpo %}
+    <div class="mb-6 pb-6 border-b border-gray-100">
+      <div class="text-[#1A1A1A] leading-relaxed [&_p]:mb-3 [&_a]:text-azul-medio [&_a]:underline [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-azul-escuro [&_h2]:mt-6 [&_h2]:mb-3">
+        {% include_block page.corpo %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# Acesso #}
+    <div class="flex flex-wrap gap-3">
+      {% if page.arquivo_pdf %}
+        <a href="{{ page.arquivo_pdf.url }}" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-vermelho-if text-white rounded hover:opacity-90 text-sm font-medium transition-opacity">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Baixar PDF
+        </a>
+      {% endif %}
+      {% if page.url_acesso %}
+        <a href="{{ page.url_acesso }}" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-azul-claro text-azul-escuro rounded hover:bg-blue-200 text-sm font-medium transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+          Acessar publicação
+        </a>
+      {% endif %}
+    </div>
+
+    {# Tags #}
+    {% if page.tags.all %}
+    <div class="mt-6 pt-6 border-t border-gray-100">
+      <div class="flex flex-wrap gap-1">
+        {% for tag in page.tags.all %}
+          <span class="text-xs px-2 py-0.5 bg-cinza-campo rounded text-[#4A5568]">#{{ tag }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </article>
+
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6">
+
+  {# Breadcrumb #}
+  <nav class="text-sm text-[#4A5568] mb-6">
+    <a href="/" class="hover:text-verde-escuro">Início</a>
+    <span class="mx-2">/</span>
+    <a href="{{ page.get_parent.url }}" class="hover:text-verde-escuro">Projetos</a>
+    <span class="mx-2">/</span>
+    <span class="text-azul-escuro font-medium">{{ page.title }}</span>
+  </nav>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    {# Sidebar #}
+    <aside class="lg:col-span-1">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5 space-y-4 sticky top-6">
+        <div class="flex flex-wrap gap-2">
+          <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-azul-claro text-azul-escuro">
+            {{ page.get_tipo_display }}
+          </span>
+          <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded
+            {% if page.status == 'em_andamento' %}bg-verde-claro text-verde-escuro
+            {% elif page.status == 'concluido' %}bg-gray-100 text-[#4A5568]
+            {% else %}bg-yellow-50 text-yellow-700{% endif %}">
+            {{ page.get_status_display }}
+          </span>
+        </div>
+
+        <dl class="space-y-3 text-sm">
+          <div>
+            <dt class="text-xs text-[#4A5568] uppercase tracking-wide mb-1">Coordenador</dt>
+            <dd><a href="{{ page.coordenador.url }}" class="font-medium text-azul-medio hover:text-azul-escuro">
+              {{ page.coordenador.nome_completo }}
+            </a></dd>
+          </div>
+
+          {% if page.participantes_docentes.all %}
+          <div>
+            <dt class="text-xs text-[#4A5568] uppercase tracking-wide mb-1">Equipe</dt>
+            <dd class="space-y-1">
+              {% for membro in page.participantes_docentes.all %}
+                <div><a href="{{ membro.url }}" class="text-azul-medio hover:text-azul-escuro">{{ membro.nome_completo }}</a></div>
+              {% endfor %}
+            </dd>
+          </div>
+          {% endif %}
+
+          <div>
+            <dt class="text-xs text-[#4A5568] uppercase tracking-wide mb-1">Período</dt>
+            <dd class="font-medium text-azul-escuro">
+              {{ page.data_inicio|date:"d/m/Y" }}
+              {% if page.data_fim %} até {{ page.data_fim|date:"d/m/Y" }}{% endif %}
+            </dd>
+          </div>
+
+          {% if page.financiador %}
+          <div>
+            <dt class="text-xs text-[#4A5568] uppercase tracking-wide mb-1">Financiador</dt>
+            <dd class="font-medium text-azul-escuro">{{ page.financiador }}</dd>
+          </div>
+          {% endif %}
+
+          {% if page.edital %}
+          <div>
+            <a href="{{ page.edital.url }}" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 px-3 py-2 bg-azul-claro text-azul-escuro rounded hover:bg-blue-200 text-sm font-medium transition-colors w-full justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              Edital do Projeto
+            </a>
+          </div>
+          {% endif %}
+
+          {% if page.tags.all %}
+          <div>
+            <dt class="text-xs text-[#4A5568] uppercase tracking-wide mb-2">Tags</dt>
+            <dd class="flex flex-wrap gap-1">
+              {% for tag in page.tags.all %}
+                <span class="text-xs px-2 py-0.5 bg-cinza-campo rounded text-[#4A5568]">{{ tag }}</span>
+              {% endfor %}
+            </dd>
+          </div>
+          {% endif %}
+        </dl>
+      </div>
+    </aside>
+
+    {# Conteúdo #}
+    <div class="lg:col-span-2 space-y-6">
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <h1 class="text-2xl font-bold text-azul-escuro mb-4 leading-snug">{{ page.title }}</h1>
+        <p class="text-[#4A5568] leading-relaxed border-l-4 border-verde-claro pl-4 italic">{{ page.resumo }}</p>
+      </div>
+
+      {% if page.descricao %}
+      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <h2 class="text-lg font-bold text-verde-escuro mb-4">Descrição</h2>
+        <div class="text-[#1A1A1A] leading-relaxed [&_p]:mb-3 [&_a]:text-azul-medio [&_a]:underline">
+          {% include_block page.descricao %}
+        </div>
+      </section>
+      {% endif %}
+
+      {# Produtos #}
+      {% if page.produtos.all %}
+      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <h2 class="text-lg font-bold text-verde-escuro mb-4">Produtos do Projeto</h2>
+        <ul class="space-y-2">
+          {% for produto in page.produtos.all %}
+          <li class="flex items-center gap-3 p-3 rounded border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all">
+            <span class="text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-azul-claro text-azul-escuro shrink-0">
+              {{ produto.get_tipo_display }}
+            </span>
+            <div class="flex-1 min-w-0">
+              {% if produto.arquivo %}
+                <a href="{{ produto.arquivo.url }}" target="_blank" rel="noopener"
+                   class="font-medium text-azul-escuro hover:text-verde-escuro text-sm transition-colors">
+                  {{ produto.titulo }}
+                </a>
+              {% elif produto.url %}
+                <a href="{{ produto.url }}" target="_blank" rel="noopener"
+                   class="font-medium text-azul-escuro hover:text-verde-escuro text-sm transition-colors">
+                  {{ produto.titulo }}
+                </a>
+              {% else %}
+                <span class="font-medium text-azul-escuro text-sm">{{ produto.titulo }}</span>
+              {% endif %}
+            </div>
+            <span class="text-xs text-[#4A5568] shrink-0">{{ produto.data|date:"Y" }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

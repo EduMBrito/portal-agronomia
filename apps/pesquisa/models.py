@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.db import models
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from taggit.managers import TaggableManager
@@ -22,6 +23,25 @@ class ProjetosIndexPage(Page):
 
     class Meta:
         verbose_name = "Listagem de Projetos"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        projetos = ProjetoPage.objects.live().order_by("-data_inicio")
+
+        tipo = request.GET.get("tipo")
+        status = request.GET.get("status")
+        if tipo:
+            projetos = projetos.filter(tipo=tipo)
+        if status:
+            projetos = projetos.filter(status=status)
+
+        paginator = Paginator(projetos, 9)
+        context["page_obj"] = paginator.get_page(request.GET.get("page", 1))
+        context["tipos"] = TIPO_PROJETO_CHOICES
+        context["status_opcoes"] = STATUS_PROJETO_CHOICES
+        context["tipo_selecionado"] = tipo
+        context["status_selecionado"] = status
+        return context
 
 
 class ProjetoPage(SeoMixin, Page):
@@ -107,6 +127,20 @@ class PublicacoesIndexPage(Page):
 
     class Meta:
         verbose_name = "Listagem de Publicações"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        publicacoes = PublicacaoPage.objects.live().order_by("-data_publicacao")
+
+        tipo = request.GET.get("tipo")
+        if tipo:
+            publicacoes = publicacoes.filter(tipo=tipo)
+
+        paginator = Paginator(publicacoes, 15)
+        context["page_obj"] = paginator.get_page(request.GET.get("page", 1))
+        context["tipos"] = TIPO_PUBLICACAO_CHOICES
+        context["tipo_selecionado"] = tipo
+        return context
 
 
 class PublicacaoPage(SeoMixin, Page):
