@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Eventos{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6">
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-azul-escuro">Agenda de Eventos</h1>
+    <p class="text-[#4A5568] mt-1">Seminários, defesas, workshops e atividades acadêmicas</p>
+  </div>
+
+  {# Filtro por tipo #}
+  <div class="mb-8 flex flex-wrap gap-2">
+    <a href="?" class="px-3 py-1.5 rounded-full text-sm border transition-colors
+       {% if not tipo_selecionado and not apenas_futuros %}bg-verde-escuro text-white border-verde-escuro{% else %}bg-white text-[#4A5568] border-gray-200 hover:border-verde-base{% endif %}">
+      Todos
+    </a>
+    <a href="?futuros=1" class="px-3 py-1.5 rounded-full text-sm border transition-colors
+       {% if apenas_futuros %}bg-verde-escuro text-white border-verde-escuro{% else %}bg-white text-[#4A5568] border-gray-200 hover:border-verde-base{% endif %}">
+      Próximos
+    </a>
+    {% for value, label in tipos %}
+      <a href="?tipo={{ value }}" class="px-3 py-1.5 rounded-full text-sm border transition-colors
+         {% if tipo_selecionado == value %}bg-azul-escuro text-white border-azul-escuro{% else %}bg-white text-[#4A5568] border-gray-200 hover:border-verde-base{% endif %}">
+        {{ label }}
+      </a>
+    {% endfor %}
+  </div>
+
+  {% if page_obj.object_list %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for evento in page_obj.object_list %}
+      {% with futuro=evento.data_inicio|date:"U" > now_ts %}
+      <article class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-verde-base transition-all group
+                      {% if not futuro %}opacity-75{% endif %}">
+        {# Cabeçalho colorido #}
+        <div class="bg-azul-escuro text-white px-5 py-4 flex items-center justify-between">
+          <div>
+            <div class="text-2xl font-bold leading-none">{{ evento.data_inicio|date:"d" }}</div>
+            <div class="text-sm text-blue-200 capitalize">{{ evento.data_inicio|date:"F Y" }}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-sm font-medium">{{ evento.data_inicio|date:"H:i" }}</div>
+            <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-blue-800 text-blue-100 mt-1 inline-block">
+              {{ evento.get_tipo_display }}
+            </span>
+          </div>
+        </div>
+
+        <div class="p-5">
+          <h2 class="font-semibold text-azul-escuro leading-snug mb-3 group-hover:text-verde-escuro">
+            <a href="{{ evento.url }}" class="transition-colors">{{ evento.title }}</a>
+          </h2>
+
+          <div class="space-y-1.5 text-xs text-[#4A5568]">
+            <div class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-verde-escuro shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span>{{ evento.local }}</span>
+              {% if evento.online %}
+                <span class="px-1.5 py-0.5 rounded bg-azul-claro text-azul-escuro font-semibold">Online</span>
+              {% endif %}
+            </div>
+            {% if evento.docentes_envolvidos.all %}
+            <div class="flex items-start gap-1.5">
+              <svg class="w-3.5 h-3.5 text-verde-escuro shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              <span class="leading-relaxed">
+                {% for docente in evento.docentes_envolvidos.all|slice:":2" %}{{ docente.nome_completo }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                {% if evento.docentes_envolvidos.count > 2 %} e outros{% endif %}
+              </span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+      {% endwith %}
+      {% endfor %}
+    </div>
+    {% include "includes/pagination.html" %}
+  {% else %}
+    <p class="text-[#4A5568] text-center py-16">Nenhum evento encontrado.</p>
+  {% endif %}
+
+</div>
+{% endblock %}

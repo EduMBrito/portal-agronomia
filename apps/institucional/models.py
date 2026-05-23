@@ -1,4 +1,6 @@
+from django.core.paginator import Paginator
 from django.db import models
+from django.utils import timezone
 from modelcluster.fields import ParentalManyToManyField
 from wagtail.admin.panels import (
     FieldPanel, MultiFieldPanel, ObjectList, TabbedInterface,
@@ -17,6 +19,20 @@ class DocumentosIndexPage(Page):
 
     class Meta:
         verbose_name = "Documentos Institucionais"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        docs = DocumentoPage.objects.live().order_by("-data_publicacao")
+
+        tipo = request.GET.get("tipo")
+        if tipo:
+            docs = docs.filter(tipo=tipo)
+
+        paginator = Paginator(docs, 20)
+        context["page_obj"] = paginator.get_page(request.GET.get("page", 1))
+        context["tipos"] = TIPO_DOCUMENTO_CHOICES
+        context["tipo_selecionado"] = tipo
+        return context
 
 
 class DocumentoPage(SeoMixin, Page):
@@ -50,6 +66,24 @@ class EventosIndexPage(Page):
 
     class Meta:
         verbose_name = "Agenda de Eventos"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        eventos = EventoPage.objects.live().order_by("-data_inicio")
+
+        tipo = request.GET.get("tipo")
+        apenas_futuros = request.GET.get("futuros")
+        if tipo:
+            eventos = eventos.filter(tipo=tipo)
+        if apenas_futuros:
+            eventos = eventos.filter(data_inicio__gte=timezone.now()).order_by("data_inicio")
+
+        paginator = Paginator(eventos, 9)
+        context["page_obj"] = paginator.get_page(request.GET.get("page", 1))
+        context["tipos"] = TIPO_EVENTO_CHOICES
+        context["tipo_selecionado"] = tipo
+        context["apenas_futuros"] = bool(apenas_futuros)
+        return context
 
 
 class EventoPage(SeoMixin, Page):

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Documentos Institucionais{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6">
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-azul-escuro">Documentos Institucionais</h1>
+    <p class="text-[#4A5568] mt-1">Regulamentos, formulários, editais e documentos oficiais do curso</p>
+  </div>
+
+  {# Filtro por tipo #}
+  <div class="mb-8 flex flex-wrap gap-2">
+    <a href="?" class="px-3 py-1.5 rounded-full text-sm border transition-colors
+       {% if not tipo_selecionado %}bg-verde-escuro text-white border-verde-escuro{% else %}bg-white text-[#4A5568] border-gray-200 hover:border-verde-base{% endif %}">
+      Todos
+    </a>
+    {% for value, label in tipos %}
+      <a href="?tipo={{ value }}" class="px-3 py-1.5 rounded-full text-sm border transition-colors
+         {% if tipo_selecionado == value %}bg-azul-escuro text-white border-azul-escuro{% else %}bg-white text-[#4A5568] border-gray-200 hover:border-verde-base{% endif %}">
+        {{ label }}
+      </a>
+    {% endfor %}
+  </div>
+
+  {% if page_obj.object_list %}
+    {# Agrupado por tipo #}
+    {% regroup page_obj.object_list by get_tipo_display as docs_por_tipo %}
+    {% for grupo in docs_por_tipo %}
+    <div class="mb-10">
+      <h2 class="text-base font-bold text-verde-escuro mb-4 pb-2 border-b-2 border-verde-claro uppercase tracking-wide">
+        {{ grupo.grouper }}
+      </h2>
+      <div class="space-y-2">
+        {% for doc in grupo.list %}
+        <div class="bg-white rounded-lg border border-gray-100 p-4 hover:border-verde-base hover:bg-verde-claro transition-all flex items-start gap-4 group
+                    {% if not doc.ativo %}opacity-60{% endif %}">
+          <svg class="w-8 h-8 text-vermelho-if shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <a href="{{ doc.arquivo.url }}" target="_blank" rel="noopener"
+                   class="font-semibold text-azul-escuro group-hover:text-verde-escuro text-sm transition-colors">
+                  {{ doc.title }}
+                </a>
+                {% if not doc.ativo %}
+                  <span class="ml-2 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-gray-100 text-[#4A5568]">
+                    Desatualizado
+                  </span>
+                {% endif %}
+                {% if doc.descricao %}
+                  <p class="text-xs text-[#4A5568] mt-0.5">{{ doc.descricao }}</p>
+                {% endif %}
+              </div>
+              <a href="{{ doc.arquivo.url }}" target="_blank" rel="noopener"
+                 class="shrink-0 text-xs font-semibold text-azul-medio hover:text-azul-escuro transition-colors">
+                Baixar
+              </a>
+            </div>
+            <div class="flex items-center gap-4 mt-2 text-xs text-[#4A5568]">
+              <span>Publicado em {{ doc.data_publicacao|date:"d/m/Y" }}</span>
+              {% if doc.data_vigencia %}
+                <span>· Válido até {{ doc.data_vigencia|date:"d/m/Y" }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+    {% include "includes/pagination.html" %}
+  {% else %}
+    <p class="text-[#4A5568] text-center py-16">Nenhum documento encontrado.</p>
+  {% endif %}
+
+</div>
+{% endblock %}
