@@ -1,4 +1,4 @@
-{% load tz %}
+{% load tz static %}
 <footer class="bg-azul-noite text-white mt-12">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
@@ -25,13 +25,26 @@
           <li><a href="/noticias/"   class="text-blue-200 hover:text-white transition-colors">Notícias</a></li>
           <li><a href="/eventos/"    class="text-blue-200 hover:text-white transition-colors">Eventos</a></li>
           <li><a href="/documentos/" class="text-blue-200 hover:text-white transition-colors">Documentos</a></li>
-          <li><a href="/admin/"      class="text-blue-200 hover:text-white transition-colors">Painel Administrativo</a></li>
+          <li><a href="/sobre/"     class="text-blue-200 hover:text-white transition-colors">Sobre o LADI</a></li>
+          <li><a href="/admin/"     class="text-blue-200 hover:text-white transition-colors">Painel Administrativo</a></li>
         </ul>
       </div>
 
     </div>
 
-    <div class="border-t border-blue-900 pt-6 text-center text-xs text-blue-300">
+    <!-- Crédito LADI -->
+    <div class="border-t border-blue-900 pt-6 pb-4 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm text-blue-200">
+      <span>Desenvolvido no</span>
+      <a href="/sobre/" class="hover:opacity-90 transition-opacity" title="Sobre o LADI">
+        <div class="bg-white rounded-xl px-3 py-1.5">
+          <img src="{% static 'images/logoLADI.png' %}" alt="LADI" class="h-10 w-auto">
+        </div>
+      </a>
+      <span>IFSertãoPE &mdash; Campus Petrolina Zona Rural</span>
+    </div>
+
+    <!-- Copyright -->
+    <div class="border-t border-blue-900 pt-4 text-center text-xs text-blue-300">
       &copy; {% now "Y" %} Portal Agronomia IFSertãoPE — Campus Petrolina Zona Rural.
       Conteúdo disponível sob licença
       <a href="https://creativecommons.org/licenses/by/4.0/" class="underline hover:text-white">CC BY 4.0</a>.

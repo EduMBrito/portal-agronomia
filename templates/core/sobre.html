@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sobre o LADI{% endblock %}
+{% block meta_description %}Conheça o Laboratório de Aplicações, Dados e Interatividades (LADI) do IFSertãoPE — Campus Petrolina Zona Rural.{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+
+  <!-- Cabeçalho -->
+  <div class="text-center mb-10">
+    <img src="{% static 'images/logoLADI.png' %}"
+         alt="LADI — Laboratório de Aplicações, Dados e Interatividades"
+         class="h-44 w-auto mx-auto mb-6 drop-shadow-sm">
+    <h1 class="text-3xl font-bold text-azul-escuro mb-2">
+      Laboratório de Aplicações, Dados e Interatividades
+    </h1>
+    <p class="text-gray-500 text-sm tracking-wide uppercase">
+      IFSertãoPE &mdash; Campus Petrolina Zona Rural
+    </p>
+  </div>
+
+  <!-- Justificativa -->
+  <section class="bg-white rounded-xl shadow-sm p-8 mb-6">
+    <h2 class="text-xl font-bold text-verde-escuro mb-4">Justificativa</h2>
+    <div class="text-gray-600 space-y-4 leading-relaxed">
+      <p>
+        A criação do LADI justifica-se pela crescente necessidade de integração entre a tecnologia
+        da informação e as demandas contemporâneas do setor agropecuário. Diante de um mercado de
+        trabalho crescentemente automatizado, o profissional do campo precisa ser um usuário avançado
+        e um gestor estratégico de tecnologia.
+      </p>
+      <p>
+        É fundamental destacar que o LADI não se configura como um centro de desenvolvimento comercial
+        de softwares ou jogos. Sua natureza é estritamente <strong>pedagógica e de suporte</strong>.
+        O ato de projetar uma aplicação, organizar um banco de dados ou estruturar a lógica de uma
+        interface interativa é utilizado aqui como metodologia ativa de aprendizagem.
+      </p>
+      <p>
+        Através dessa vivência prática, os estudantes desenvolvem o pensamento computacional,
+        a capacidade de diagnosticar problemas complexos e a habilidade de gerenciar processos
+        tecnológicos. O laboratório funciona, portanto, como uma ponte: utiliza a tecnologia e a
+        gestão como ferramentas para potencializar a área fim do campus, entregando ao setor
+        produtivo profissionais agrícolas com altíssima capacidade de adaptação tecnológica e
+        visão analítica.
+      </p>
+    </div>
+  </section>
+
+  <!-- Missão e Visão -->
+  <div class="grid md:grid-cols-2 gap-6 mb-6">
+
+    <section class="bg-white rounded-xl shadow-sm p-8">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-1 h-6 bg-verde-escuro rounded-full"></div>
+        <h2 class="text-xl font-bold text-verde-escuro">Missão</h2>
+      </div>
+      <p class="text-gray-600 leading-relaxed">
+        Promover a capacitação e o letramento tecnológico dos estudantes das Ciências Agrárias
+        por meio da vivência prática com ferramentas digitais. Possibilitar a inovação tecnológica
+        e acadêmica por meio da pesquisa, extensão e do desenvolvimento de aplicações integradas,
+        experiências digitais interativas e análise de dados como instrumentos pedagógicos para
+        desenvolver o pensamento computacional — preparando os alunos para liderar a transformação
+        digital no setor agropecuário.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-xl shadow-sm p-8">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-1 h-6 bg-azul-escuro rounded-full"></div>
+        <h2 class="text-xl font-bold text-azul-escuro">Visão</h2>
+      </div>
+      <p class="text-gray-600 leading-relaxed">
+        Tornar-se um centro de referência em difusão de cultura digital e competências tecnológicas
+        para o setor agropastoril, reconhecido por capacitar profissionais das ciências agrárias a
+        compreender, gerenciar e aplicar soluções tecnológicas, assim como desenvolver ferramentas
+        que otimizam a produção, a gestão e o ensino no campo.
+      </p>
+    </section>
+
+  </div>
+
+  <!-- Projeto: Portal Agronomia -->
+  <section class="bg-verde-claro border border-verde-base/20 rounded-xl p-8">
+    <div class="flex items-center gap-2 mb-4">
+      <div class="w-1 h-6 bg-verde-base rounded-full"></div>
+      <h2 class="text-xl font-bold text-verde-escuro">Projeto: Portal Agronomia</h2>
+    </div>
+    <p class="text-gray-700 leading-relaxed">
+      O <strong>Portal Agronomia IFSertãoPE</strong> é um projeto desenvolvido no LADI em
+      colaboração com o curso de Agronomia do Campus Petrolina Zona Rural. A plataforma
+      centraliza a produção intelectual, didática e institucional do curso — tornando acessíveis
+      ao público materiais de disciplinas, publicações científicas, projetos de pesquisa e
+      extensão, posts de docentes e documentos institucionais.
+    </p>
+    <p class="text-gray-700 leading-relaxed mt-3">
+      Desenvolvido com <strong>Django</strong>, <strong>Wagtail CMS</strong> e
+      <strong>PostgreSQL</strong>, o portal exemplifica a missão do laboratório: usar a
+      tecnologia como instrumento pedagógico e de suporte institucional, gerando valor real
+      para o campus e para a comunidade acadêmica.
+    </p>
+  </section>
+
+</div>
+{% endblock %}

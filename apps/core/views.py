@@ -3,6 +3,10 @@ from django.shortcuts import render
 from wagtail.models import Page
 
 
+def sobre(request):
+    return render(request, "core/sobre.html")
+
+
 def busca(request):
     query = request.GET.get("q", "").strip()
     results = Page.objects.none()
