@@ -1,6 +1,8 @@
 # Portal Agronomia — IFSertãoPE
 
-Portal web do curso de **Agronomia** do Instituto Federal do Sertão Pernambucano, Campus Petrolina Zona Rural. Centraliza a produção acadêmica, materiais didáticos, projetos de pesquisa, publicações científicas e documentos institucionais em um painel administrado pelos próprios docentes.
+Portal web do curso de **Agronomia** do Instituto Federal do Sertão Pernambucano, Campus Petrolina Zona Rural. Centraliza a produção acadêmica, materiais didáticos, projetos de pesquisa, publicações científicas e documentos institucionais.
+
+O conteúdo é mantido por uma **comissão gestora**: o docente submete o que deseja publicar e a comissão insere pelo painel administrativo, apoiada por ferramentas de carga em massa (importação de currículo Lattes e colheita de publicações via ORCID).
 
 [![CI](https://github.com/EduMBrito/portal-agronomia/actions/workflows/ci.yml/badge.svg)](https://github.com/EduMBrito/portal-agronomia/actions/workflows/ci.yml)
 
@@ -136,7 +138,7 @@ portal-agronomia/
 | Disciplinas | Grade curricular com materiais didáticos por disciplina |
 | Projetos | Pesquisa, extensão, TCC, PIBIC e PIBEX com equipe e produtos |
 | Publicações | Artigos, livros, TCC, dissertações e teses |
-| Posts | Blog institucional alimentado pelos docentes |
+| Posts | Blog institucional — textos submetidos pelos docentes à comissão |
 | Documentos | Regulamentos, editais, atas e formulários institucionais |
 | Eventos | Seminários, defesas de TCC, workshops e visitas técnicas |
 

@@ -2,7 +2,9 @@
 
 ## Visão Geral
 
-Portal web do curso de Agronomia do Campus Petrolina Zona Rural do IFSertãoPE. Centraliza produção acadêmica, materiais didáticos, projetos de pesquisa, publicações científicas e documentos institucionais em um CMS gerenciado pelos próprios docentes.
+Portal web do curso de Agronomia do Campus Petrolina Zona Rural do IFSertãoPE. Centraliza produção acadêmica, materiais didáticos, projetos de pesquisa, publicações científicas e documentos institucionais.
+
+O CMS é operado por uma **comissão gestora**, não pelos docentes individualmente. Isso orienta duas decisões de arquitetura: a autenticação segue com Django Auth (LDAP foi descartado — poucos usuários não justificam o custo), e o esforço de produto vai para **ferramentas de carga em massa** (importação de XML do Lattes, colheita de publicações via ORCID/CrossRef) em vez de facilidades de autoria individual. Detalhes e o registro das decisões estão no `CLAUDE.md`.
 
 ## Stack
 

@@ -155,12 +155,22 @@ Gere um docs/API.md baseado nos arquivos de rotas em @src/routes/.
 ## Visão deste projeto
 O portal tem como objetivo centralizar toda a produção intelectual, didática e institucional do curso de Agronomia, tornando acessível ao publico os materiais de disciplinas, publicações científicas, projetos de pesquisa e extensão, posts de docentes e documentos institucionais.
 
-A plataforma será alimentada pelos próprios professores por meio de um painel administrativo intuitivo, dispensando conhecimento técnico para a inserção de conteúdo.
+A plataforma é alimentada por uma **equipe gestora (comissão)**, não pelos
+professores diretamente. O docente submete à comissão o que deseja publicar, e a
+comissão insere no portal pelo painel administrativo.
+
+> **Correção de premissa (31/07/2026).** As versões anteriores deste documento
+> diziam que a plataforma seria alimentada pelos próprios professores. Não é o
+> modelo adotado. Isso muda três coisas: o LDAP deixa de fazer sentido (ver
+> Arquitetura Tecnológica), a distinção de permissão "docente edita só o próprio
+> conteúdo" deixa de ser operante, e a prioridade passa a ser **ferramentas de
+> carga em massa** para a comissão — importador de Lattes e rotina de colheita
+> de publicações — em vez de facilidades de autoria individual.
 
 1.1 Objetivos
 # Centralizar a produção acadêmica do curso em um único portal publico Oferecer visibilidade institucional para projetos, publicações e docentes
 # Facilitar o acesso a materiais de disciplinas por discentes
-# Permitir que docentes publiquem conteúdo de forma autônoma
+# Reunir a produção de cada docente com o menor esforço manual possível da comissão
 # Registrar e divulgar eventos, seminários e defesas acadêmicas
 # Disponibilizar documentos institucionais do curso de forma organizada
 
@@ -170,7 +180,7 @@ Banco de dados - PostgreSQL
 Servidor web - Nginx + Gunicorn
 Frontend - Django Templates + HTMX
 Estilização - Tailwind CSS
-Autenticação - Django Auth / LDAP
+Autenticação - Django Auth (LDAP fora de escopo — ver decisão abaixo)
 Armazenamento - Sistema de arquivos local
 
 ## Organização do projeto Django
@@ -224,7 +234,8 @@ Repositório de produção científica dos docentes do curso.
 →  Campos para DOI, ISSN, veículo de publicação e data
 →  Upload de PDF e link de acesso externo
 →  Filtragem por tipo, autor, área e ano
-→  Integração do DOI para exibição de metadados
+→  Colheita automática de publicações via ORCID + CrossRef (rotina sob demanda,
+   nunca em tempo real na renderização da página)
 
 ### Módulo de Posts
 Blog institucional alimentado pelos próprios docentes.
@@ -371,7 +382,7 @@ EventoPage - ProjetoPage - ForeignKey (N:1) — projeto vinculado
 ### Permissoes por papel de usuario
 Administrador - Total — usuarios, grupos, configs - Todos os modelos e configuracoes
 Coordenador - Publicar qualquer conteudo - Todos os Page types
-Docente - Criar e editar o proprio conteudo - PostPage, PublicacaoPage, ProjetoPage (proprios)
+Docente - Grupo criado pelo setup_grupos, mas sem uso operacional: quem alimenta o portal e a comissao
 Tecnico - Gestao institucional - DocumentoPage e EventoPage
 Publico - Somente leitura - Nenhum (apenas visualizacao)
 
@@ -454,12 +465,90 @@ Ruff; e CI no GitHub Actions.
 
 O que falta:
 
-1. **Deploy no servidor do campus** — seguir `docs/DEPLOY.md`. Pendências
+1. **Ferramentas de carga para a comissão** — importador de Lattes e rotina de
+   colheita por ORCID. Ver seção abaixo. É a prioridade
+2. **Deploy no servidor do campus** — seguir `docs/DEPLOY.md`. Pendências
    próprias do deploy: trocar o hostname do Site em `/admin/sites/`, certificado
-   SSL e a carga de conteúdo real com os professores
-2. **LDAP** — previsto neste documento, ainda não implementado (só Django Auth)
-3. **Integração de DOI** para metadados automáticos em `PublicacaoPage` —
-   previsto no Módulo de Publicações, ainda não implementado
+   SSL e a carga de conteúdo real
+
+## Alimentação do Portal — estratégia de duas fontes
+
+Decidido em 31/07/2026, depois de analisar um XML real do Lattes e testar a API
+do CrossRef. As duas fontes são **paralelas e complementares**, não encadeadas.
+
+### Fonte 1 — XML do Lattes (carga inicial)
+
+Cobre **todos** os docentes, porque todo professor tem Lattes. O docente exporta
+o XML e entrega à comissão, que roda o importador.
+
+Alimenta: `DocentePage` (titulação, instituição, áreas de atuação, bio) e
+`ProjetoPage`. O mapeamento é quase literal — `SITUACAO="EM_ANDAMENTO"` e
+`NATUREZA="PESQUISA"` do CNPq batem com as `choices.py` deste projeto, só
+mudando a caixa.
+
+**É a única fonte de projetos.** Projeto de pesquisa não existe no CrossRef.
+
+### Fonte 2 — ORCID + CrossRef (rotina de atualização)
+
+Só cobre quem tem ORCID. Roda sob demanda (`quando executada`), consulta
+`api.crossref.org/works?filter=orcid:<orcid>` — API livre, sem chave — e traz
+publicações novas com metadados completos.
+
+Nem todo docente tem ORCID; alguns nunca criaram. **Ação de processo para a
+comissão:** ajudar esses professores a criar o ORCID na fase de cadastro. É
+gratuito, leva cinco minutos, e é o que garante cobertura permanente da rotina.
+
+### Decisões tomadas
+
+- **Conteúdo importado nasce como rascunho** (`live=False`). A comissão revisa e
+  publica. O Wagtail 6.3 tem publicação em lote na listagem de páginas
+- **Registro já existente é atualizado automaticamente**, sem perguntar
+- **Deduplicação por DOI normalizado** para publicações; os comandos são
+  idempotentes, como o `bootstrap_site`
+- **Nunca em tempo real.** O servidor só precisa de internet enquanto o comando
+  roda; as páginas públicas servem do banco
+
+### O que não é possível
+
+**Não existe API pública do Lattes.** Verificado em 31/07/2026: os endpoints do
+CNPq não respondem e a busca de currículos é protegida por reCAPTCHA,
+deliberadamente. Automatizar exigiria convênio institucional com o CNPq — vale
+checar se o IFSertãoPE já tem. Sem isso, o caminho é o XML entregue pelo docente.
+
+**O campo DOI do Lattes vem vazio.** No XML analisado havia 41 atributos `DOI=`,
+todos em branco. Não dá para ler o Lattes e usar os DOIs para enriquecer via
+CrossRef — daí as duas fontes serem paralelas.
+
+### Restrição de LGPD
+
+O XML do Lattes contém **CPF, e-mail e telefone**. Em produção o
+`docs/nginx.conf` serve `/media/` como alias direto, **sem autenticação** — um
+XML largado ali vira download público.
+
+O XML é insumo de processamento, não conteúdo do portal: deve ser lido de um
+diretório fora da raiz web e descartado depois. Nenhum dado pessoal sensível
+entra no banco; o parser lê apenas o que alimenta os models.
+
+### LDAP — fora de escopo
+
+Todo o valor do LDAP é não gerenciar senhas de muita gente. Com o portal
+alimentado por uma comissão de 3 a 5 pessoas, esse valor desaparece, enquanto o
+custo permanece: coordenação com o CTI, conta de serviço, dependências nativas
+no `Dockerfile` e um caminho de autenticação que, se o diretório cair, tranca a
+comissão para fora.
+
+Reavaliar apenas se o portal um dia abrir para os professores editarem direto.
+
+## Pendências para retomar
+
+**Com Eduardo:** conseguir o **XML do Lattes de um docente de Agronomia**. O XML
+já analisado é de professor de Informática, com 1 artigo — valida a estrutura,
+mas não mostra como vem a seção bibliográfica de quem publica em periódico. É o
+que falta para decidir como tratar artigos sem DOI no importador.
+
+**Próximo passo de código:** o comando `importar_lattes <arquivo.xml>`, criando
+ou atualizando `DocentePage` e `ProjetoPage` como rascunho. A parte de perfil e
+projetos já pode ser escrita — a estrutura está validada contra um XML real.
 
 Pontos em aberto que apareceram durante o desenvolvimento e dependem da sua
 decisão:
