@@ -60,10 +60,10 @@ Seções: Added, Changed, Fixed, Removed
 
 ---
 
-## [0.2.0] - 2026-05-22
+## [0.2.0] - 2026-05-23
 
 ### Added
-- Todos os 23 templates HTML (base.html, includes, 7 módulos completos)
+- Todos os 21 templates HTML (base.html, includes, 7 módulos completos)
 - Integração do Tailwind CSS Play CDN com config da paleta institucional
 - HTMX 2.0.3 via CDN
 - Paginação em todas as IndexPages
@@ -75,7 +75,7 @@ Seções: Added, Changed, Fixed, Removed
 
 ---
 
-## [0.1.0] - 2026-05-20
+## [0.1.0] - 2026-05-22
 
 ### Added
 - Estrutura inicial do projeto Django 5.1 + Wagtail 6.3
