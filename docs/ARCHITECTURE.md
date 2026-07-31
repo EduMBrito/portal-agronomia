@@ -36,10 +36,20 @@ portal-agronomia/
 │   │   └── production.py
 │   ├── urls.py
 │   └── wsgi.py
+├── assets/
+│   └── css/input.css   # fonte do Tailwind — paleta institucional no @theme
 ├── templates/          # todos os templates HTML (23 arquivos)
-├── static/             # arquivos estáticos do projeto
+├── static/
+│   ├── css/tailwind.css   # CSS compilado e versionado
+│   ├── js/htmx.min.js     # HTMX servido localmente
+│   └── images/
+├── tests/              # suíte pytest — fixtures em conftest.py
+├── scripts/            # setup.sh e build-css.sh
 ├── media/              # uploads (gerenciado pelo Wagtail)
 ├── docs/               # esta pasta
+├── .github/workflows/  # CI
+├── pyproject.toml      # configuração do Ruff
+├── pytest.ini
 ├── docker-compose.yml
 ├── Dockerfile
 └── manage.py
@@ -79,10 +89,18 @@ Gunicorn :8000
     ▼
 Django / Wagtail
     ├── /admin/      → Wagtail Admin (CMS)
-    ├── /django-admin/ → Django Admin
     ├── /documents/  → Download de documentos Wagtail
+    ├── /busca/      → view própria (apps.core.views.busca)
+    ├── /sobre/      → view própria (apps.core.views.sobre)
     └── /*           → Wagtail Page Router → Page.serve() → Template
 ```
+
+A ordem em `config/urls.py` importa: `/busca/` e `/sobre/` precisam vir **antes**
+do catchall do Wagtail, senão ele tentaria resolvê-las como páginas e devolveria
+404. O mesmo vale para as URLs do debug_toolbar em desenvolvimento.
+
+O Django Admin (`django.contrib.admin`) não está roteado — toda a gestão de
+conteúdo, usuários e grupos acontece pelo admin do Wagtail em `/admin/`.
 
 ## Módulos e Responsabilidades
 
@@ -95,8 +113,11 @@ Sem modelos de negócio. Contém:
 
 ### `apps/core`
 - `HomePage` — página raiz, agrega estatísticas e conteúdo recente no contexto
+- `views.py` — `busca` (busca textual em todo o portal) e `sobre` (página institucional)
 - `wagtail_hooks.py` — três painéis do dashboard admin: BemVindoPanel, ResumoConteudoPanel, AcoesRapidasPanel
+- `management/commands/bootstrap_site.py` — monta a árvore de páginas em uma instalação nova
 - `management/commands/setup_grupos.py` — cria grupos Coordenador, Docente, Técnico com permissões Wagtail
+- `management/commands/populate_content.py` — conteúdo de exemplo (só desenvolvimento)
 
 ### `apps/pessoas`
 - `AreaConhecimento` — snippet (sem URL pública), usado como tag de classificação
@@ -149,7 +170,7 @@ não pelo Play CDN. Três motivos:
 
 A paleta institucional fica em `assets/css/input.css`, no bloco `@theme` — na v4
 a configuração é feita em CSS, não mais em `tailwind.config.js`. A saída
-(`static/css/tailwind.css`, ~32 KB minificados) é **versionada no Git**, então o
+(`static/css/tailwind.css`, ~29 KB minificados) é **versionada no Git**, então o
 deploy não precisa de etapa de build: o `collectstatic` coleta o arquivo pronto.
 Em troca, é preciso rodar `./scripts/build-css.sh` e commitar o resultado sempre
 que um template mudar.
@@ -158,6 +179,38 @@ que um template mudar.
 Adicionado para futuras interações sem full-page reload (ex: filtros AJAX em listagens). Atualmente o middleware `django_htmx` está registrado mas os templates ainda usam navegação tradicional — não há nenhum atributo `hx-` no projeto até aqui.
 
 Servido localmente de `static/js/htmx.min.js` (versão 2.0.3, ~50 KB), pelo mesmo motivo do Tailwind: o portal não deve depender de CDN externo para funcionar no servidor do campus. Para atualizar, baixe `https://unpkg.com/htmx.org@<versao>/dist/htmx.min.js` para `static/js/` e ajuste a versão no comentário do `base.html`.
+
+### Árvore de páginas criada por comando, não à mão
+
+Uma instalação nova do Wagtail responde com a página padrão "Welcome to your new
+Wagtail site!" — a HomePage e as sete IndexPages do portal não existem. Antes
+elas precisavam ser criadas uma a uma pelo admin, na ordem certa, e o `Site` do
+Wagtail repontuado manualmente.
+
+O `bootstrap_site` faz isso em um comando idempotente. Dois detalhes que o
+código registra em comentário: `Site.root_page` é FK com `on_delete=CASCADE`,
+então a página padrão só pode ser apagada **depois** de o Site apontar para a
+nova HomePage; e o Wagtail renomeia slug duplicado em silêncio (`docentes` →
+`docentes-1`), o que quebraria os links do menu — daí a checagem explícita.
+
+## Testes e Integração Contínua
+
+59 testes com pytest + pytest-django, cobrindo os 7 módulos. As fixtures em
+`tests/conftest.py` montam a árvore do Wagtail; os testes de listagem chamam
+`get_context()` direto com o `RequestFactory`, sem passar pelo HTTP, o que isola
+a lógica de filtro, ordenação e paginação.
+
+O CI (`.github/workflows/ci.yml`) roda três jobs em paralelo a cada push e PR:
+
+| Job | Verifica |
+|---|---|
+| Ruff | lint |
+| CSS em dia | se `static/css/tailwind.css` bate com os templates |
+| Testes | PostgreSQL 16, migrações pendentes, pytest com cobertura |
+
+O job de CSS existe por causa do trade-off do build local: como o CSS compilado
+é versionado, dá para mexer num template, esquecer o `build-css.sh` e subir com
+CSS defasado — as classes novas não teriam efeito, sem erro visível.
 
 ## Grupos e Permissões
 

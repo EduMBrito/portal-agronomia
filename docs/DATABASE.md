@@ -307,15 +307,26 @@ docker run --rm -v portal-agronomia_media_data:/data -v $(pwd):/backup \
 
 ## Seeds
 
-Após migrate, configure os dados iniciais:
+Após o `migrate`, nesta ordem:
 
 ```bash
-# Cria superusuário
-docker compose exec web python manage.py createsuperuser
+# 1. Árvore de páginas: HomePage + as 7 IndexPages, e o Site do Wagtail
+#    repontuado para a nova HomePage. Idempotente.
+docker compose exec web python manage.py bootstrap_site
 
-# Cria grupos e permissões
+# 2. Grupos e permissões (Coordenador, Docente, Técnico)
 docker compose exec web python manage.py setup_grupos
 
-# Cria a árvore de páginas (via Wagtail admin em /admin/)
-# Ordem: HomePage → IndexPages → páginas filhas
+# 3. Superusuário
+docker compose exec web python manage.py createsuperuser
+
+# 4. Só em desenvolvimento — conteúdo de exemplo
+docker compose exec web python manage.py populate_content
 ```
+
+**A ordem importa.** O `setup_grupos` concede permissões *sobre* as IndexPages;
+rodado antes do `bootstrap_site`, ele encontra a árvore vazia e sai avisando
+`"HomePage não encontrada — crie a árvore primeiro"`, sem configurar quase nada.
+
+O `populate_content` também depende da árvore: ele popula IndexPages existentes,
+não as cria. **Não rode em produção** — o conteúdo é fictício.

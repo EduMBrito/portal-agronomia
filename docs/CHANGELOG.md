@@ -26,7 +26,7 @@ o deploy no servidor do campus.
 **Frontend sem CDN**
 - `assets/css/input.css` — fonte do Tailwind com a paleta institucional no bloco `@theme`
 - `scripts/build-css.sh` — compila o CSS com o binário standalone do Tailwind (sem Node/npm); aceita `--watch`
-- `static/css/tailwind.css` — CSS compilado e versionado (~32 KB minificados)
+- `static/css/tailwind.css` — CSS compilado e versionado (~29 KB minificados)
 - `static/js/htmx.min.js` — HTMX 2.0.3 servido localmente
 
 **Qualidade**

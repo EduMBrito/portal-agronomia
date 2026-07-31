@@ -32,6 +32,18 @@ Todas as rotas são servidas pelo Wagtail Page Router. Os slugs são configurado
 | `/eventos/` | `EventosIndexPage` | Agenda de eventos |
 | `/eventos/<slug>/` | `EventoPage` | Evento individual |
 
+As duas rotas abaixo não são páginas do Wagtail — são views Django registradas
+em `config/urls.py` **antes** do catchall:
+
+| URL | View | Descrição |
+|---|---|---|
+| `/busca/` | `apps.core.views.busca` | Busca textual em todo o portal |
+| `/sobre/` | `apps.core.views.sobre` | Página institucional "Sobre o LADI" |
+
+Os slugs das listagens (`/docentes/`, `/disciplinas/`, …) são criados pelo
+management command `bootstrap_site` e precisam bater com os links do menu em
+`templates/includes/header.html`.
+
 > Os slugs acima são os slugs padrão configurados durante a criação da árvore de páginas. Podem ser alterados no painel admin em Settings → Pages.
 
 ### Parâmetros de Filtro (Query String)
@@ -83,13 +95,36 @@ Filtra disciplinas por período da grade.
 
 ## Busca Textual
 
-O Wagtail expõe busca em:
-
 ```
-GET /search/?query=<termo>
+GET /busca/?q=<termo>
 ```
 
-A busca é configurada em `config/settings/base.py` usando o backend PostgreSQL do Wagtail. Os models indexados são aqueles com `search_fields` definidos (`DocentePage`, `DisciplinaPage`, `ProjetoPage`, `PublicacaoPage`, `PostPage`, `EventoPage`).
+| Parâmetro | Descrição |
+|---|---|
+| `q` | Termo buscado. Vazio ou ausente devolve zero resultados |
+| `page` | Número da página — 10 resultados por página |
+
+Implementada por uma view própria (`apps/core/views.py:busca`), não pelo
+`wagtail.contrib.search_promotions`. A view roda
+`Page.objects.live().specific().search(query)`, ou seja, busca em **todas** as
+páginas publicadas.
+
+O que cada página contribui para o índice depende do seu `search_fields`:
+
+| Page type | Campos indexados além do título |
+|---|---|
+| `DocentePage` | `nome_completo`, `bio` |
+| `DisciplinaPage` | `codigo`, `ementa` |
+| `ProjetoPage` | `resumo` |
+| `PublicacaoPage` | `resumo`, `veiculo` |
+| `PostPage` | `resumo`, `corpo` |
+| `EventoPage` | `descricao` |
+| `DocumentoPage` | nenhum — encontrável apenas pelo título |
+
+O projeto não define `WAGTAILSEARCH_BACKENDS`, então vale o backend padrão do
+Wagtail (`wagtail.search.backends.database`). Sobre PostgreSQL ele usa busca
+full-text nativa do banco; nenhum serviço externo como Elasticsearch é
+necessário.
 
 ## Wagtail Admin
 
@@ -146,3 +181,10 @@ Tamanhos de página por módulo:
 | Posts | 9 |
 | Documentos | 20 |
 | Eventos | 9 |
+| Busca | 10 |
+
+Disciplinas é a exceção: não pagina, porque a listagem agrupa por período da
+grade e o volume é limitado pelo próprio currículo.
+
+Página fora do intervalo não devolve 404 — `Paginator.get_page()` cai na página
+válida mais próxima.

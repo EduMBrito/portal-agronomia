@@ -443,5 +443,36 @@ Configuracao do servidor de producao — Nginx + Gunicorn + SSL
 Carga inicial de conteudo com os professores
 
 
-**Última atualização:** 23 de maio de 2026
-**Versão:** 3.0
+## Estado do Projeto
+
+**Fases 1 a 5 concluídas** — release `v0.4.0` (31/07/2026).
+
+O que já está pronto: os 7 módulos com models, templates e listagens filtráveis;
+busca textual; painel admin com branding e dashboard; árvore de páginas criada
+por `bootstrap_site`; Tailwind e HTMX servidos localmente (sem CDN); 59 testes;
+Ruff; e CI no GitHub Actions.
+
+O que falta:
+
+1. **Deploy no servidor do campus** — seguir `docs/DEPLOY.md`. Pendências
+   próprias do deploy: trocar o hostname do Site em `/admin/sites/`, certificado
+   SSL e a carga de conteúdo real com os professores
+2. **LDAP** — previsto neste documento, ainda não implementado (só Django Auth)
+3. **Integração de DOI** para metadados automáticos em `PublicacaoPage` —
+   previsto no Módulo de Publicações, ainda não implementado
+
+Pontos em aberto que apareceram durante o desenvolvimento e dependem da sua
+decisão:
+
+- `PostPage.data_publicacao` é `auto_now_add`: não aparece no painel de edição,
+  então um docente não consegue datar um post retroativamente
+- `DocumentoPage` e `EventoPage` não usam `TabbedInterface`, ao contrário dos
+  outros módulos — os campos de SEO aparecem na aba "Promover" padrão do Wagtail
+  em vez de uma aba própria
+- A branch `develop` prevista neste documento não existe; o fluxo real tem sido
+  feature branch ou commit direto na `main`
+
+---
+
+**Última atualização:** 31 de julho de 2026
+**Versão:** 3.1

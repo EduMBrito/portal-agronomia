@@ -2,7 +2,12 @@
 
 Portal web do curso de **Agronomia** do Instituto Federal do Sertão Pernambucano, Campus Petrolina Zona Rural. Centraliza a produção acadêmica, materiais didáticos, projetos de pesquisa, publicações científicas e documentos institucionais em um painel administrado pelos próprios docentes.
 
-**Stack:** Django 5.1 · Wagtail 6.3 · PostgreSQL 16 · HTMX · Tailwind CSS · Docker
+[![CI](https://github.com/EduMBrito/portal-agronomia/actions/workflows/ci.yml/badge.svg)](https://github.com/EduMBrito/portal-agronomia/actions/workflows/ci.yml)
+
+**Stack:** Django 5.1 · Wagtail 6.3 · PostgreSQL 16 · Tailwind CSS 4.3 · HTMX 2.0 · Docker
+
+CSS e JavaScript são servidos localmente, sem CDN — o portal renderiza por
+completo em um servidor sem acesso à internet.
 
 ---
 
@@ -11,7 +16,8 @@ Portal web do curso de **Agronomia** do Instituto Federal do Sertão Pernambucan
 - [Docker Engine 24+](https://docs.docker.com/engine/install/) e Docker Compose v2
 - Git
 
-> Desenvolvimento realizado em WSL2 (Ubuntu) no Windows 11. Funciona igualmente em Linux nativo e macOS.
+> Desenvolvido em WSL2 (Ubuntu) e em macOS; funciona igualmente em Linux nativo.
+> O `scripts/build-css.sh` detecta a plataforma e baixa o binário correspondente.
 
 ---
 
@@ -107,9 +113,13 @@ portal-agronomia/
 ├── assets/
 │   └── css/input.css   # fonte do Tailwind — paleta institucional no @theme
 ├── templates/          # 23 templates HTML organizados por módulo
-├── static/             # arquivos estáticos do projeto (inclui css/tailwind.css compilado)
+├── static/             # css/tailwind.css compilado, js/htmx.min.js, imagens
+├── tests/              # 59 testes — fixtures em conftest.py
+├── scripts/            # setup.sh e build-css.sh
 ├── media/              # uploads gerenciados pelo Wagtail
 ├── docs/               # documentação técnica completa
+├── .github/workflows/  # integração contínua
+├── pyproject.toml      # configuração do Ruff
 ├── docker-compose.yml
 ├── Dockerfile
 ├── .env.example
@@ -140,8 +150,21 @@ portal-agronomia/
 | [DATABASE.md](docs/DATABASE.md) | Diagrama ER, tabelas, migrações, backup |
 | [DEPLOY.md](docs/DEPLOY.md) | Passo a passo para o servidor do campus |
 | [API.md](docs/API.md) | URLs públicas, filtros, parâmetros de busca |
-| [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Git workflow, padrão de commits, testes |
+| [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Git workflow, testes, lint e CI |
 | [CHANGELOG.md](docs/CHANGELOG.md) | Histórico de versões |
+
+---
+
+## Qualidade
+
+```bash
+docker compose exec web pytest                 # 59 testes
+docker compose exec web ruff check .           # lint
+./scripts/build-css.sh                         # recompila o CSS
+```
+
+O CI roda os três a cada push e pull request, mais a checagem de migrações
+pendentes. Detalhes em [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 ---
 
