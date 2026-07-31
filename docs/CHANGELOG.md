@@ -20,9 +20,11 @@ Seções: Added, Changed, Fixed, Removed
 - `assets/css/input.css` — fonte do Tailwind com a paleta institucional no bloco `@theme`
 - `scripts/build-css.sh` — compila o CSS com o binário standalone do Tailwind (sem Node/npm); aceita `--watch`
 - `static/css/tailwind.css` — CSS compilado e versionado (~32 KB minificados)
+- `static/js/htmx.min.js` — HTMX 2.0.3 servido localmente, sem CDN
 
 ### Changed
-- **Tailwind CSS: Play CDN substituído por build local (v3.4 → v4.3.3).** O portal não depende mais de CDN externo para renderizar — requisito para o servidor do campus. Configuração migrada de `tailwind.config.js` inline para `@theme` em CSS
+- **Tailwind CSS: Play CDN substituído por build local (v3.4 → v4.3.3).** Configuração migrada de `tailwind.config.js` inline para `@theme` em CSS
+- **HTMX: carregado de `static/js/` em vez do unpkg.com.** Com isto e o Tailwind local, o portal não faz mais nenhuma requisição a CDN externo — requisito para o servidor do campus
 - Utilities renomeadas conforme a escala da v4: `shadow-sm` → `shadow-xs` (30x), `rounded` → `rounded-sm` (54x), `outline-none` → `outline-hidden` (3x). Valores computados são idênticos aos da v3
 - Sequência de instalação no README.md, `docs/DEPLOY.md`, `docs/CONTRIBUTING.md` e `scripts/setup.sh` — inclui `bootstrap_site` entre `migrate` e `createsuperuser`
 

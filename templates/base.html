@@ -10,8 +10,10 @@
        assets/css/input.css; recompile com ./scripts/build-css.sh -->
   <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
 
-  <!-- HTMX -->
-  <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
+  <!-- HTMX 2.0.3 — servido localmente para o portal não depender de CDN.
+       Para atualizar: baixe de https://unpkg.com/htmx.org@<versao>/dist/htmx.min.js
+       para static/js/ e ajuste a versão neste comentário. -->
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
 
   {% block extra_head %}{% endblock %}
 </head>

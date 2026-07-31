@@ -155,7 +155,9 @@ Em troca, é preciso rodar `./scripts/build-css.sh` e commitar o resultado sempr
 que um template mudar.
 
 ### HTMX
-Adicionado para futuras interações sem full-page reload (ex: filtros AJAX em listagens). Atualmente o middleware `django_htmx` está registrado mas os templates ainda usam navegação tradicional.
+Adicionado para futuras interações sem full-page reload (ex: filtros AJAX em listagens). Atualmente o middleware `django_htmx` está registrado mas os templates ainda usam navegação tradicional — não há nenhum atributo `hx-` no projeto até aqui.
+
+Servido localmente de `static/js/htmx.min.js` (versão 2.0.3, ~50 KB), pelo mesmo motivo do Tailwind: o portal não deve depender de CDN externo para funcionar no servidor do campus. Para atualizar, baixe `https://unpkg.com/htmx.org@<versao>/dist/htmx.min.js` para `static/js/` e ajuste a versão no comentário do `base.html`.
 
 ## Grupos e Permissões
 

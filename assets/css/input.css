@@ -8,9 +8,13 @@
  * simplesmente coleta o que já está no repositório.
  */
 
-@import "tailwindcss";
+/* `source(none)` desliga a detecção automática de arquivos: sem isso o
+ * Tailwind varre o projeto inteiro e captura palavras soltas de dentro de
+ * JS vendorizado (static/js/htmx.min.js gerava .resize e .transition, que
+ * nenhum template usa). Abaixo declaramos explicitamente o que varrer. */
+@import "tailwindcss" source(none);
 
-/* Arquivos varridos em busca de classes — caminhos relativos a este arquivo.
+/* Caminhos relativos a este arquivo.
  * apps/ entra porque há classes em choices.py e nos blocks do StreamField. */
 @source "../../templates";
 @source "../../apps";
