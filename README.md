@@ -32,12 +32,22 @@ docker compose up -d
 # 4. Aplique as migrações
 docker compose exec web python manage.py migrate
 
-# 5. Crie o superusuário
+# 5. Monte a árvore de páginas (HomePage + as 7 seções)
+docker compose exec web python manage.py bootstrap_site
+
+# 6. Crie o superusuário
 docker compose exec web python manage.py createsuperuser
 
-# 6. Crie os grupos de permissão
+# 7. Crie os grupos de permissão
 docker compose exec web python manage.py setup_grupos
+
+# 8. (opcional) Carregue conteúdo de exemplo para navegar no portal
+docker compose exec web python manage.py populate_content
 ```
+
+> O passo 5 é obrigatório em uma instalação nova: sem ele o Wagtail responde
+> com a página padrão "Welcome to your new Wagtail site!" e o menu do topo
+> aponta para seções que ainda não existem. O comando é idempotente.
 
 Acesse:
 - Portal público: http://localhost:8000

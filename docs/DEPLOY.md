@@ -131,6 +131,9 @@ docker compose -f docker-compose.prod.yml up -d
 # Aplicar migrações
 docker compose -f docker-compose.prod.yml exec web python manage.py migrate
 
+# Montar a árvore de páginas (HomePage + as 7 seções)
+docker compose -f docker-compose.prod.yml exec web python manage.py bootstrap_site
+
 # Coletar arquivos estáticos
 docker compose -f docker-compose.prod.yml exec web python manage.py collectstatic --noinput
 
@@ -140,6 +143,18 @@ docker compose -f docker-compose.prod.yml exec web python manage.py createsuperu
 # Configurar grupos e permissões
 docker compose -f docker-compose.prod.yml exec web python manage.py setup_grupos
 ```
+
+> **`bootstrap_site`:** obrigatório em uma instalação nova. Cria a HomePage, aponta
+> o Site do Wagtail para ela, remove a página padrão "Welcome to your new Wagtail
+> site!" e cria as sete seções com os slugs que o menu do topo espera. É
+> idempotente — reexecutar em um portal já povoado não altera nada.
+
+> **Não rode `populate_content` em produção.** Ele carrega docentes, projetos e
+> publicações fictícios, feitos para demonstração.
+
+> **Hostname do Site:** o `bootstrap_site` não mexe no hostname. Em
+> `/admin/sites/`, troque `localhost:80` pelo domínio real do campus — o Wagtail
+> usa esse valor para gerar URLs absolutas (e-mails de notificação, sitemap).
 
 > **Tailwind:** antes do deploy, substitua o Play CDN por arquivos CSS compilados via Tailwind CLI e inclua-os via `collectstatic`.
 

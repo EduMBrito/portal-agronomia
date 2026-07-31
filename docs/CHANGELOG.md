@@ -8,7 +8,17 @@ Seções: Added, Changed, Fixed, Removed
 ## [Unreleased]
 
 ### Added
+- Management command `bootstrap_site` — cria a HomePage, aponta o Site do Wagtail para ela, remove a página padrão "Welcome to your new Wagtail site!" e cria as sete IndexPages com os slugs esperados pelo menu. Idempotente
+- Busca textual em todo o portal (`/busca/`) usando o backend nativo do Wagtail
+- Suíte de testes com pytest + pytest-django (30 testes: core, ensino, institucional, pessoas)
+- `config/settings/production.py` — HTTPS, HSTS, cookies seguros, `ManifestStaticFilesStorage`, logging para stdout
+- `docker-compose.prod.yml`, `docs/nginx.conf` e `docs/gunicorn.service`
+- Management command `populate_content` — carga de conteúdo de exemplo para demonstração
+- Página "Sobre o LADI" (`/sobre/`) e logo no rodapé
 - Pasta `docs/` com ARCHITECTURE.md, API.md, DATABASE.md, DEPLOY.md, CONTRIBUTING.md, CHANGELOG.md
+
+### Changed
+- Sequência de instalação no README.md, `docs/DEPLOY.md`, `docs/CONTRIBUTING.md` e `scripts/setup.sh` — inclui `bootstrap_site` entre `migrate` e `createsuperuser`
 
 ---
 

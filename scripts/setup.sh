@@ -13,6 +13,12 @@ if [ ! -f .env ]; then
 fi
 echo "==> Rodando migrações..."
 python manage.py migrate
+echo "==> Montando a árvore de páginas..."
+python manage.py bootstrap_site
+echo "==> Criando grupos de permissão..."
+python manage.py setup_grupos
 echo "==> Criando superusuário..."
 python manage.py createsuperuser
+echo ""
 echo "Pronto! Rode: python manage.py runserver"
+echo "Para carregar conteúdo de exemplo: python manage.py populate_content"

@@ -28,11 +28,17 @@ docker compose up -d
 # Aplique as migrações
 docker compose exec web python manage.py migrate
 
+# Monte a árvore de páginas (HomePage + as 7 seções) — obrigatório, idempotente
+docker compose exec web python manage.py bootstrap_site
+
 # Crie o superusuário
 docker compose exec web python manage.py createsuperuser
 
 # Configure os grupos de permissão
 docker compose exec web python manage.py setup_grupos
+
+# (opcional) Conteúdo de exemplo para desenvolver com o portal populado
+docker compose exec web python manage.py populate_content
 ```
 
 Acesse em: http://localhost:8000  
