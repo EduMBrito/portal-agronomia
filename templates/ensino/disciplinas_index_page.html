@@ -36,9 +36,9 @@
       </h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for disciplina in disciplinas %}
-        <article class="bg-white rounded-lg shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-verde-base transition-all group">
+        <article class="bg-white rounded-lg shadow-xs border border-gray-100 p-5 hover:shadow-md hover:border-verde-base transition-all group">
           <div class="flex items-start justify-between mb-3">
-            <span class="text-xs font-mono font-bold text-verde-escuro bg-verde-claro px-2 py-0.5 rounded">
+            <span class="text-xs font-mono font-bold text-verde-escuro bg-verde-claro px-2 py-0.5 rounded-sm">
               {{ disciplina.codigo }}
             </span>
             <span class="text-xs text-[#4A5568]">{{ disciplina.carga_horaria }}h</span>

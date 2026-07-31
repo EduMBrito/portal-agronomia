@@ -75,6 +75,12 @@ docker compose exec web python manage.py shell
 # Criar migrações após alterar models
 docker compose exec web python manage.py makemigrations
 docker compose exec web python manage.py migrate
+
+# Recompilar o CSS após mexer em templates — commite o resultado
+./scripts/build-css.sh
+
+# Ou deixar recompilando sozinho enquanto você edita
+./scripts/build-css.sh --watch
 ```
 
 ---
@@ -98,8 +104,10 @@ portal-agronomia/
 │   │   └── production.py
 │   ├── urls.py
 │   └── wsgi.py
+├── assets/
+│   └── css/input.css   # fonte do Tailwind — paleta institucional no @theme
 ├── templates/          # 23 templates HTML organizados por módulo
-├── static/             # arquivos estáticos do projeto
+├── static/             # arquivos estáticos do projeto (inclui css/tailwind.css compilado)
 ├── media/              # uploads gerenciados pelo Wagtail
 ├── docs/               # documentação técnica completa
 ├── docker-compose.yml

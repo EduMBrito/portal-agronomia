@@ -21,7 +21,7 @@
 </section>
 
 {# ─── Números ──────────────────────────────────────────────────────────────── #}
-<section class="bg-white shadow-sm">
+<section class="bg-white shadow-xs">
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="grid grid-cols-3 divide-x divide-gray-100 py-6 text-center">
       <div class="px-4">
@@ -52,7 +52,7 @@
       {% if eventos_proximos %}
         <div class="space-y-3">
           {% for evento in eventos_proximos %}
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-gray-100 flex gap-4">
+          <article class="bg-white rounded-lg p-4 shadow-xs border border-gray-100 flex gap-4">
             <div class="bg-verde-claro rounded-lg p-2 text-center min-w-[52px] self-start">
               <div class="text-xl font-bold text-verde-escuro leading-none">{{ evento.data_inicio|date:"d" }}</div>
               <div class="text-[10px] text-verde-base uppercase tracking-wide">{{ evento.data_inicio|date:"M" }}</div>
@@ -68,7 +68,7 @@
                 {% if evento.online %}&middot; <span class="text-azul-medio">Online</span>{% endif %}
               </p>
               <span class="inline-block mt-1.5 text-[10px] font-bold uppercase tracking-wide
-                           px-2 py-0.5 rounded bg-verde-claro text-verde-escuro">
+                           px-2 py-0.5 rounded-sm bg-verde-claro text-verde-escuro">
                 {{ evento.get_tipo_display }}
               </span>
             </div>
@@ -91,7 +91,7 @@
       {% if posts_recentes %}
         <div class="space-y-3">
           {% for post in posts_recentes %}
-          <article class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+          <article class="bg-white rounded-lg p-4 shadow-xs border border-gray-100">
             <p class="text-xs text-[#4A5568] mb-1.5">
               {{ post.data_publicacao|date:"d/m/Y" }}
               &middot; {{ post.autor.nome_completo }}

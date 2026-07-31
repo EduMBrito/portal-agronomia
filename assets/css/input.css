@@ -1,0 +1,47 @@
+/* Fonte do CSS do portal — compilada para static/css/tailwind.css.
+ *
+ * Para recompilar depois de mexer em qualquer template:
+ *     ./scripts/build-css.sh
+ *
+ * O arquivo gerado é versionado no Git, então o servidor do campus não
+ * precisa de Node nem de internet para montar o CSS: o collectstatic
+ * simplesmente coleta o que já está no repositório.
+ */
+
+@import "tailwindcss";
+
+/* Arquivos varridos em busca de classes — caminhos relativos a este arquivo.
+ * apps/ entra porque há classes em choices.py e nos blocks do StreamField. */
+@source "../../templates";
+@source "../../apps";
+
+/* Paleta institucional IFSertãoPE (ver CLAUDE.md).
+ *
+ * Na v4 a configuração é feita em CSS, não mais em tailwind.config.js.
+ * Cada --color-* aqui gera todo o conjunto de utilities correspondente:
+ * --color-verde-escuro  ->  bg-verde-escuro, text-verde-escuro,
+ *                           border-verde-escuro, ring-verde-escuro ... */
+@theme {
+  --color-verde-escuro: #2D6636;
+  --color-verde-base:   #3A7D44;
+  --color-verde-medio:  #5AAB66;
+  --color-verde-claro:  #D4EDDA;
+
+  --color-azul-noite:   #122D52;
+  --color-azul-escuro:  #1A3C6E;
+  --color-azul-medio:   #2E6DB4;
+  --color-azul-claro:   #DBEAFE;
+
+  --color-cinza-campo:  #E8EDE9;
+  --color-vermelho-if:  #C0392B;
+}
+
+/* Compatibilidade com o comportamento da v3: o Preflight da v4 passou o
+ * cursor dos botões de `pointer` para `default`. Sem isto, todos os botões
+ * do portal deixariam de mostrar a mãozinha ao passar o mouse. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}

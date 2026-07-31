@@ -156,7 +156,11 @@ docker compose -f docker-compose.prod.yml exec web python manage.py setup_grupos
 > `/admin/sites/`, troque `localhost:80` pelo domínio real do campus — o Wagtail
 > usa esse valor para gerar URLs absolutas (e-mails de notificação, sitemap).
 
-> **Tailwind:** antes do deploy, substitua o Play CDN por arquivos CSS compilados via Tailwind CLI e inclua-os via `collectstatic`.
+> **Tailwind:** nada a fazer no servidor. O CSS já vem compilado e versionado em
+> `static/css/tailwind.css`; o `collectstatic` acima o coleta junto com o resto.
+> O campus não precisa de Node, npm nem acesso a CDN para o portal renderizar.
+> Se alterar algum template, rode `./scripts/build-css.sh` na sua máquina e
+> commite o CSS regenerado **antes** de fazer o deploy.
 
 ## 6. Nginx
 

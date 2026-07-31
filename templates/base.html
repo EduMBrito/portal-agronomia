@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -6,28 +6,9 @@
   <title>{% block title %}Portal Agronomia{% endblock %} | IFSertãoPE</title>
   <meta name="description" content="{% block meta_description %}Portal do Curso de Agronomia — IFSertãoPE, Campus Petrolina Zona Rural{% endblock %}">
 
-  <!-- Tailwind CSS Play CDN — substituir por CLI em produção -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'verde-escuro': '#2D6636',
-            'verde-base':   '#3A7D44',
-            'verde-medio':  '#5AAB66',
-            'verde-claro':  '#D4EDDA',
-            'azul-noite':   '#122D52',
-            'azul-escuro':  '#1A3C6E',
-            'azul-medio':   '#2E6DB4',
-            'azul-claro':   '#DBEAFE',
-            'cinza-campo':  '#E8EDE9',
-            'vermelho-if':  '#C0392B',
-          }
-        }
-      }
-    }
-  </script>
+  <!-- Tailwind compilado localmente. A paleta institucional agora fica em
+       assets/css/input.css; recompile com ./scripts/build-css.sh -->
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
 
   <!-- HTMX -->
   <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
@@ -42,7 +23,7 @@
     {% if messages %}
       <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-6 space-y-2">
         {% for message in messages %}
-          <div class="px-4 py-3 rounded text-sm
+          <div class="px-4 py-3 rounded-sm text-sm
             {% if message.tags == 'error' %}bg-red-50 text-vermelho-if border border-red-200
             {% else %}bg-verde-claro text-verde-escuro border border-verde-base{% endif %}">
             {{ message }}

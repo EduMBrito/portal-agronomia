@@ -17,7 +17,13 @@ Seções: Added, Changed, Fixed, Removed
 - Página "Sobre o LADI" (`/sobre/`) e logo no rodapé
 - Pasta `docs/` com ARCHITECTURE.md, API.md, DATABASE.md, DEPLOY.md, CONTRIBUTING.md, CHANGELOG.md
 
+- `assets/css/input.css` — fonte do Tailwind com a paleta institucional no bloco `@theme`
+- `scripts/build-css.sh` — compila o CSS com o binário standalone do Tailwind (sem Node/npm); aceita `--watch`
+- `static/css/tailwind.css` — CSS compilado e versionado (~32 KB minificados)
+
 ### Changed
+- **Tailwind CSS: Play CDN substituído por build local (v3.4 → v4.3.3).** O portal não depende mais de CDN externo para renderizar — requisito para o servidor do campus. Configuração migrada de `tailwind.config.js` inline para `@theme` em CSS
+- Utilities renomeadas conforme a escala da v4: `shadow-sm` → `shadow-xs` (30x), `rounded` → `rounded-sm` (54x), `outline-none` → `outline-hidden` (3x). Valores computados são idênticos aos da v3
 - Sequência de instalação no README.md, `docs/DEPLOY.md`, `docs/CONTRIBUTING.md` e `scripts/setup.sh` — inclui `bootstrap_site` entre `migrate` e `createsuperuser`
 
 ---

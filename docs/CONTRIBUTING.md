@@ -57,6 +57,12 @@ docker compose exec web python manage.py shell
 docker compose exec web python manage.py makemigrations
 docker compose exec web python manage.py migrate
 
+# Recompilar o CSS após mexer em templates (obrigatório antes de commitar)
+./scripts/build-css.sh
+
+# Recompilar sozinho a cada save, durante o desenvolvimento
+./scripts/build-css.sh --watch
+
 # Linting Python (Ruff)
 docker compose exec web ruff check .
 

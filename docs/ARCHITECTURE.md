@@ -13,7 +13,7 @@ Portal web do curso de Agronomia do Campus Petrolina Zona Rural do IFSertãoPE. 
 | Servidor WSGI | Gunicorn | — |
 | Proxy reverso | Nginx | — |
 | Frontend | Django Templates + HTMX | 2.0.3 |
-| Estilização | Tailwind CSS (Play CDN em dev) | 3.x |
+| Estilização | Tailwind CSS (CLI standalone, compilado local) | 4.3 |
 | Containerização | Docker + Docker Compose | — |
 | Linguagem | Python | 3.12 |
 
@@ -139,8 +139,20 @@ Sem modelos de negócio. Contém:
 - Eduardo mantém múltiplos projetos Python/PostgreSQL na mesma máquina (WSL2)
 - Isolamento total: PostgreSQL na porta 5433 do host (evita conflito com porta 5432 de outros projetos)
 
-### Tailwind Play CDN (desenvolvimento)
-Usada temporariamente para desenvolvimento. **Deve ser substituída pelo Tailwind CLI antes de ir para produção**, pois o Play CDN gera o CSS em runtime no browser.
+### Tailwind compilado localmente
+O CSS é gerado pelo **binário standalone** do Tailwind CLI (`scripts/build-css.sh`),
+não pelo Play CDN. Três motivos:
+
+- O Play CDN compila o CSS em runtime no browser — inadequado para produção
+- O servidor do campus não deve depender de CDN externo para renderizar o portal
+- O binário standalone dispensa Node e npm, tanto aqui quanto no servidor
+
+A paleta institucional fica em `assets/css/input.css`, no bloco `@theme` — na v4
+a configuração é feita em CSS, não mais em `tailwind.config.js`. A saída
+(`static/css/tailwind.css`, ~32 KB minificados) é **versionada no Git**, então o
+deploy não precisa de etapa de build: o `collectstatic` coleta o arquivo pronto.
+Em troca, é preciso rodar `./scripts/build-css.sh` e commitar o resultado sempre
+que um template mudar.
 
 ### HTMX
 Adicionado para futuras interações sem full-page reload (ex: filtros AJAX em listagens). Atualmente o middleware `django_htmx` está registrado mas os templates ainda usam navegação tradicional.

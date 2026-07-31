@@ -16,3 +16,5 @@ htmlcov/
 *.mo
 # WSL2
 *:Zone.Identifier
+# Binário do Tailwind CLI baixado por scripts/build-css.sh
+.bin/

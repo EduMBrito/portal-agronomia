@@ -43,12 +43,12 @@
   {% if page_obj.object_list %}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for projeto in page_obj.object_list %}
-      <article class="bg-white rounded-lg shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-verde-base transition-all group flex flex-col">
+      <article class="bg-white rounded-lg shadow-xs border border-gray-100 p-5 hover:shadow-md hover:border-verde-base transition-all group flex flex-col">
         <div class="flex items-center justify-between mb-3">
-          <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-azul-claro text-azul-escuro">
+          <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-sm bg-azul-claro text-azul-escuro">
             {{ projeto.get_tipo_display }}
           </span>
-          <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded
+          <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-sm
             {% if projeto.status == 'em_andamento' %}bg-verde-claro text-verde-escuro
             {% elif projeto.status == 'concluido' %}bg-gray-100 text-[#4A5568]
             {% else %}bg-yellow-50 text-yellow-700{% endif %}">

@@ -15,11 +15,11 @@
     <span class="text-azul-escuro font-medium truncate">{{ page.title }}</span>
   </nav>
 
-  <article class="bg-white rounded-lg shadow-sm border border-gray-100 p-8">
+  <article class="bg-white rounded-lg shadow-xs border border-gray-100 p-8">
 
     {# Tipo e data #}
     <div class="flex items-center gap-3 mb-4">
-      <span class="text-xs font-bold uppercase tracking-wide px-2 py-1 rounded bg-azul-claro text-azul-escuro">
+      <span class="text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-sm bg-azul-claro text-azul-escuro">
         {{ page.get_tipo_display }}
       </span>
       <span class="text-sm text-[#4A5568]">{{ page.data_publicacao|date:"d \d\e F \d\e Y" }}</span>
@@ -88,7 +88,7 @@
     <div class="flex flex-wrap gap-3">
       {% if page.arquivo_pdf %}
         <a href="{{ page.arquivo_pdf.url }}" target="_blank" rel="noopener"
-           class="inline-flex items-center gap-2 px-4 py-2 bg-vermelho-if text-white rounded hover:opacity-90 text-sm font-medium transition-opacity">
+           class="inline-flex items-center gap-2 px-4 py-2 bg-vermelho-if text-white rounded-sm hover:opacity-90 text-sm font-medium transition-opacity">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
@@ -97,7 +97,7 @@
       {% endif %}
       {% if page.url_acesso %}
         <a href="{{ page.url_acesso }}" target="_blank" rel="noopener"
-           class="inline-flex items-center gap-2 px-4 py-2 bg-azul-claro text-azul-escuro rounded hover:bg-blue-200 text-sm font-medium transition-colors">
+           class="inline-flex items-center gap-2 px-4 py-2 bg-azul-claro text-azul-escuro rounded-sm hover:bg-blue-200 text-sm font-medium transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
           </svg>
@@ -111,7 +111,7 @@
     <div class="mt-6 pt-6 border-t border-gray-100">
       <div class="flex flex-wrap gap-1">
         {% for tag in page.tags.all %}
-          <span class="text-xs px-2 py-0.5 bg-cinza-campo rounded text-[#4A5568]">#{{ tag }}</span>
+          <span class="text-xs px-2 py-0.5 bg-cinza-campo rounded-sm text-[#4A5568]">#{{ tag }}</span>
         {% endfor %}
       </div>
     </div>

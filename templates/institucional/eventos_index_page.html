@@ -31,7 +31,7 @@
   {% if page_obj.object_list %}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for evento in page_obj.object_list %}
-      <article class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-verde-base transition-all group
+      <article class="bg-white rounded-lg shadow-xs border border-gray-100 overflow-hidden hover:shadow-md hover:border-verde-base transition-all group
                       {% if evento.data_inicio < now %}opacity-75{% endif %}">
         {# Cabeçalho colorido #}
         <div class="bg-azul-escuro text-white px-5 py-4 flex items-center justify-between">
@@ -41,7 +41,7 @@
           </div>
           <div class="text-right">
             <div class="text-sm font-medium">{{ evento.data_inicio|date:"H:i" }}</div>
-            <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-blue-800 text-blue-100 mt-1 inline-block">
+            <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-sm bg-blue-800 text-blue-100 mt-1 inline-block">
               {{ evento.get_tipo_display }}
             </span>
           </div>
@@ -59,7 +59,7 @@
               </svg>
               <span>{{ evento.local }}</span>
               {% if evento.online %}
-                <span class="px-1.5 py-0.5 rounded bg-azul-claro text-azul-escuro font-semibold">Online</span>
+                <span class="px-1.5 py-0.5 rounded-sm bg-azul-claro text-azul-escuro font-semibold">Online</span>
               {% endif %}
             </div>
             {% if evento.docentes_envolvidos.all %}

@@ -20,7 +20,7 @@
 
     {# Sidebar — perfil #}
     <aside class="lg:col-span-1">
-      <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden sticky top-6">
+      <div class="bg-white rounded-lg shadow-xs border border-gray-100 overflow-hidden sticky top-6">
 
         {# Foto #}
         {% if page.foto %}
@@ -80,7 +80,7 @@
             <p class="text-xs font-semibold text-[#4A5568] uppercase tracking-wide mb-2">Áreas de atuação</p>
             <div class="flex flex-wrap gap-1">
               {% for area in page.areas_conhecimento.all %}
-                <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-verde-claro text-verde-escuro">
+                <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-sm bg-verde-claro text-verde-escuro">
                   {{ area.nome }}
                 </span>
               {% endfor %}
@@ -95,7 +95,7 @@
     <div class="lg:col-span-2 space-y-8">
 
       {# Biografia #}
-      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      <section class="bg-white rounded-lg shadow-xs border border-gray-100 p-6">
         <h2 class="text-lg font-bold text-verde-escuro mb-4">Biografia</h2>
         <div class="text-[#1A1A1A] leading-relaxed [&_p]:mb-3 [&_a]:text-azul-medio [&_a]:underline">
           {{ page.bio|richtext }}
@@ -104,11 +104,11 @@
 
       {# Disciplinas #}
       {% if page.disciplinas.all %}
-      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      <section class="bg-white rounded-lg shadow-xs border border-gray-100 p-6">
         <h2 class="text-lg font-bold text-verde-escuro mb-4">Disciplinas</h2>
         <div class="space-y-2">
           {% for disciplina in page.disciplinas.live %}
-          <a href="{{ disciplina.url }}" class="flex items-center justify-between p-3 rounded border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all group">
+          <a href="{{ disciplina.url }}" class="flex items-center justify-between p-3 rounded-sm border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all group">
             <div>
               <span class="font-medium text-azul-escuro text-sm group-hover:text-verde-escuro">{{ disciplina.title }}</span>
               <span class="ml-2 text-xs text-[#4A5568]">{{ disciplina.codigo }}</span>
@@ -122,14 +122,14 @@
 
       {# Projetos coordenados #}
       {% if page.projetos_coordenados.live %}
-      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      <section class="bg-white rounded-lg shadow-xs border border-gray-100 p-6">
         <h2 class="text-lg font-bold text-verde-escuro mb-4">Projetos Coordenados</h2>
         <div class="space-y-2">
           {% for projeto in page.projetos_coordenados.live %}
-          <a href="{{ projeto.url }}" class="block p-3 rounded border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all group">
+          <a href="{{ projeto.url }}" class="block p-3 rounded-sm border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all group">
             <div class="flex items-center justify-between mb-1">
               <span class="font-medium text-azul-escuro text-sm group-hover:text-verde-escuro">{{ projeto.title }}</span>
-              <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded
+              <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-sm
                 {% if projeto.status == 'em_andamento' %}bg-verde-claro text-verde-escuro{% else %}bg-gray-100 text-[#4A5568]{% endif %}">
                 {{ projeto.get_status_display }}
               </span>
@@ -143,11 +143,11 @@
 
       {# Publicações #}
       {% if page.publicacoes.live %}
-      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      <section class="bg-white rounded-lg shadow-xs border border-gray-100 p-6">
         <h2 class="text-lg font-bold text-verde-escuro mb-4">Publicações</h2>
         <div class="space-y-2">
           {% for pub in page.publicacoes.live|dictsortreversed:"data_publicacao"|slice:":5" %}
-          <a href="{{ pub.url }}" class="block p-3 rounded border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all group">
+          <a href="{{ pub.url }}" class="block p-3 rounded-sm border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all group">
             <p class="font-medium text-azul-escuro text-sm group-hover:text-verde-escuro leading-snug">{{ pub.title }}</p>
             <p class="text-xs text-[#4A5568] mt-1">{{ pub.get_tipo_display }} · {{ pub.veiculo }} · {{ pub.data_publicacao|date:"Y" }}</p>
           </a>

@@ -34,7 +34,7 @@
   {% if page_obj.object_list %}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {% for docente in page_obj.object_list %}
-      <article class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+      <article class="bg-white rounded-lg shadow-xs border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
         <a href="{{ docente.url }}" class="block">
           {% if docente.foto %}
             <div class="aspect-square bg-cinza-campo overflow-hidden">
@@ -58,7 +58,7 @@
           {% if docente.areas_conhecimento.all %}
             <div class="flex flex-wrap gap-1">
               {% for area in docente.areas_conhecimento.all|slice:":2" %}
-                <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-verde-claro text-verde-escuro">
+                <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-sm bg-verde-claro text-verde-escuro">
                   {{ area.nome }}
                 </span>
               {% endfor %}

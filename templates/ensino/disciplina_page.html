@@ -19,9 +19,9 @@
 
     {# Sidebar — informações da disciplina #}
     <aside class="lg:col-span-1">
-      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5 space-y-4 sticky top-6">
+      <div class="bg-white rounded-lg shadow-xs border border-gray-100 p-5 space-y-4 sticky top-6">
         <div>
-          <span class="text-xs font-mono font-bold text-verde-escuro bg-verde-claro px-2 py-1 rounded">
+          <span class="text-xs font-mono font-bold text-verde-escuro bg-verde-claro px-2 py-1 rounded-sm">
             {{ page.codigo }}
           </span>
         </div>
@@ -54,7 +54,7 @@
     <div class="lg:col-span-2 space-y-6">
 
       {# Ementa #}
-      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      <section class="bg-white rounded-lg shadow-xs border border-gray-100 p-6">
         <h2 class="text-lg font-bold text-verde-escuro mb-4">Ementa</h2>
         <div class="text-[#1A1A1A] leading-relaxed [&_p]:mb-3">
           {{ page.ementa|richtext }}
@@ -63,7 +63,7 @@
 
       {# Materiais #}
       {% if page.materiais.all %}
-      <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      <section class="bg-white rounded-lg shadow-xs border border-gray-100 p-6">
         <h2 class="text-lg font-bold text-verde-escuro mb-4">
           Materiais Didáticos
           <span class="text-sm font-normal text-[#4A5568] ml-2">{{ page.materiais.count }} item{% if page.materiais.count != 1 %}s{% endif %}</span>
@@ -78,7 +78,7 @@
           </h3>
           <ul class="space-y-2">
             {% for material in grupo.list %}
-            <li class="flex items-start gap-3 p-3 rounded border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all group">
+            <li class="flex items-start gap-3 p-3 rounded-sm border border-gray-100 hover:border-verde-base hover:bg-verde-claro transition-all group">
               {# Ícone por tipo #}
               {% if material.tipo == 'pdf' %}
                 <svg class="w-5 h-5 text-vermelho-if shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
