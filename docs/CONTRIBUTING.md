@@ -127,9 +127,28 @@ docker compose exec web pytest
 
 # Com cobertura
 docker compose exec web pytest --cov=apps --cov-report=term-missing
+
+# Só um módulo
+docker compose exec web pytest tests/test_pesquisa.py
 ```
 
-> Os testes ainda estão sendo implementados. Consulte o CHANGELOG para acompanhar o progresso.
+São 59 testes cobrindo os 7 módulos. Os `models.py` de `core`, `ensino`,
+`noticias` e `pesquisa` estão em 100%; `pessoas` em 98% e `institucional` em 87%.
+
+O que ainda não tem teste: `apps/core/wagtail_hooks.py` (36% — os painéis do
+dashboard do admin) e os management commands `bootstrap_site`, `setup_grupos` e
+`populate_content`, que hoje são validados rodando à mão em banco limpo.
+
+### Como os testes são escritos
+
+As fixtures ficam em `tests/conftest.py` e montam a árvore do Wagtail
+(HomePage → IndexPage → páginas de conteúdo). Os testes de listagem chamam
+`get_context()` direto com o `rf` (RequestFactory), sem passar pelo HTTP —
+é mais rápido e testa a lógica de filtro/ordenação/paginação isoladamente.
+
+Ao escrever um teste novo, confira que ele **falha** quando você quebra de
+propósito o comportamento que ele deveria proteger. Teste que passa nos dois
+casos não protege nada.
 
 ## Linting e Formatação
 

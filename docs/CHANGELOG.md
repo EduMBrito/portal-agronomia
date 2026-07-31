@@ -10,7 +10,9 @@ Seções: Added, Changed, Fixed, Removed
 ### Added
 - Management command `bootstrap_site` — cria a HomePage, aponta o Site do Wagtail para ela, remove a página padrão "Welcome to your new Wagtail site!" e cria as sete IndexPages com os slugs esperados pelo menu. Idempotente
 - Busca textual em todo o portal (`/busca/`) usando o backend nativo do Wagtail
-- Suíte de testes com pytest + pytest-django (30 testes: core, ensino, institucional, pessoas)
+- Suíte de testes com pytest + pytest-django — 59 testes cobrindo os 7 módulos
+- `tests/test_pesquisa.py` (20 testes) — filtros por tipo e status, cumulatividade, ordenação, paginação (9 e 15), rascunhos fora da listagem pública, relações reversas do perfil de docente e `PROTECT` do coordenador
+- `tests/test_noticias.py` (9 testes) — feed cronológico, paginação, rascunhos, `PROTECT` do autor e preenchimento automático de `data_publicacao`
 - `config/settings/production.py` — HTTPS, HSTS, cookies seguros, `ManifestStaticFilesStorage`, logging para stdout
 - `docker-compose.prod.yml`, `docs/nginx.conf` e `docs/gunicorn.service`
 - Management command `populate_content` — carga de conteúdo de exemplo para demonstração
@@ -23,6 +25,7 @@ Seções: Added, Changed, Fixed, Removed
 - `static/js/htmx.min.js` — HTMX 2.0.3 servido localmente, sem CDN
 
 ### Changed
+- `pytest-cov` adicionado ao `requirements-dev.txt` — o `docs/CONTRIBUTING.md` já documentava `pytest --cov`, mas o pacote nunca havia sido instalado e o comando falhava
 - **Tailwind CSS: Play CDN substituído por build local (v3.4 → v4.3.3).** Configuração migrada de `tailwind.config.js` inline para `@theme` em CSS
 - **HTMX: carregado de `static/js/` em vez do unpkg.com.** Com isto e o Tailwind local, o portal não faz mais nenhuma requisição a CDN externo — requisito para o servidor do campus
 - Utilities renomeadas conforme a escala da v4: `shadow-sm` → `shadow-xs` (30x), `rounded` → `rounded-sm` (54x), `outline-none` → `outline-hidden` (3x). Valores computados são idênticos aos da v3
