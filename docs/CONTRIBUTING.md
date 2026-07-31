@@ -150,20 +150,43 @@ Ao escrever um teste novo, confira que ele **falha** quando você quebra de
 propósito o comportamento que ele deveria proteger. Teste que passa nos dois
 casos não protege nada.
 
-## Linting e Formatação
+## Linting
 
-O projeto usa **Ruff** para linting e formatação Python:
+O projeto usa o **Ruff apenas como linter**. Configuração em `pyproject.toml`.
 
 ```bash
 # Verificar
 docker compose exec web ruff check .
 
-# Corrigir automaticamente
+# Corrigir o que for automatizável (imports fora de ordem, imports não usados…)
 docker compose exec web ruff check --fix .
-
-# Formatar
-docker compose exec web ruff format .
 ```
+
+Regras ativas: `E`/`W` (pycodestyle), `F` (pyflakes), `I` (ordenação de imports),
+`UP` (sintaxe moderna) e `B` (bugbear). Linha de até 100 caracteres. As migrações
+são excluídas por serem geradas pelo Django.
+
+### Por que não há formatter automático
+
+O projeto **não** usa Black nem `ruff format`. Ambos reformatariam o idioma de
+painéis do Wagtail usado em todos os models:
+
+```python
+# como está hoje
+MultiFieldPanel([
+    FieldPanel("codigo"),
+    FieldPanel("carga_horaria"),
+], heading="Informações gerais"),
+```
+
+O formatter explodiria isso em uma forma bem mais verbosa, reescrevendo 31
+arquivos (~875 linhas) e poluindo o `git blame` de todos os models. Como o
+código já segue um estilo consistente, optou-se por manter a formatação manual
+e usar o Ruff só para o que ele pega de fato: imports não usados, variáveis
+mortas, nomes indefinidos e ordenação de imports.
+
+Se um dia o projeto ganhar mais colaboradores, vale reavaliar — formatter
+automático rende mais quanto mais gente mexe no código.
 
 ## Adicionando um Novo Módulo
 

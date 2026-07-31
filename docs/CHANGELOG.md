@@ -24,7 +24,17 @@ Seções: Added, Changed, Fixed, Removed
 - `static/css/tailwind.css` — CSS compilado e versionado (~32 KB minificados)
 - `static/js/htmx.min.js` — HTMX 2.0.3 servido localmente, sem CDN
 
+- `pyproject.toml` com a configuração do Ruff — regras `E`, `W`, `F`, `I`, `UP`, `B`, linha de 100 caracteres, migrações excluídas
+
+### Fixed
+- `apps/institucional/models.py` — `ObjectList` e `TabbedInterface` importados e nunca usados
+- `apps/core/management/commands/populate_content.py` — três variáveis atribuídas e nunca usadas
+- `tests/test_pessoas.py` — `pytest.raises(Exception)` trocado por `IntegrityError`; a forma genérica passaria mesmo se o erro fosse outro
+- `apps/core/management/commands/bootstrap_site.py` — `Optional[Page]` trocado por `Page | None`
+- Ordenação de imports em 24 arquivos e 8 linhas acima de 100 caracteres
+
 ### Changed
+- Ruff adotado **apenas como linter**, sem formatter automático — Black e `ruff format` reescreveriam o idioma de painéis do Wagtail em 31 arquivos. Decisão registrada no CLAUDE.md e no `docs/CONTRIBUTING.md`
 - `pytest-cov` adicionado ao `requirements-dev.txt` — o `docs/CONTRIBUTING.md` já documentava `pytest --cov`, mas o pacote nunca havia sido instalado e o comando falhava
 - **Tailwind CSS: Play CDN substituído por build local (v3.4 → v4.3.3).** Configuração migrada de `tailwind.config.js` inline para `@theme` em CSS
 - **HTMX: carregado de `static/js/` em vez do unpkg.com.** Com isto e o Tailwind local, o portal não faz mais nenhuma requisição a CDN externo — requisito para o servidor do campus

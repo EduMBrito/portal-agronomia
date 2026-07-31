@@ -1,6 +1,10 @@
 from wagtail.blocks import (
-    BlockQuoteBlock, CharBlock, ChoiceBlock,
-    RichTextBlock, StreamBlock, StructBlock,
+    BlockQuoteBlock,
+    CharBlock,
+    ChoiceBlock,
+    RichTextBlock,
+    StreamBlock,
+    StructBlock,
 )
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock

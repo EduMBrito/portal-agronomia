@@ -9,10 +9,12 @@ from apps.ensino.models import DisciplinaPage, DisciplinasIndexPage
 from apps.institucional.models import EventoPage, EventosIndexPage
 from apps.noticias.models import PostPage, PostsIndexPage
 from apps.pesquisa.models import (
-    ProjetoPage, ProjetosIndexPage, PublicacaoPage, PublicacoesIndexPage,
+    ProjetoPage,
+    ProjetosIndexPage,
+    PublicacaoPage,
+    PublicacoesIndexPage,
 )
 from apps.pessoas.models import AreaConhecimento, DocentePage, DocentesIndexPage
-
 
 # ---------------------------------------------------------------------------
 # Árvore de páginas

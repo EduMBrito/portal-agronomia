@@ -5,7 +5,6 @@ from django.db.models import ProtectedError
 
 from tests.conftest import _make_post
 
-
 # ---------------------------------------------------------------------------
 # Page: PostsIndexPage.get_context
 # ---------------------------------------------------------------------------

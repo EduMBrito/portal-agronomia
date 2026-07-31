@@ -30,8 +30,8 @@ class HomePage(Page):
         from apps.ensino.models import DisciplinaPage
         from apps.institucional.models import EventoPage
         from apps.noticias.models import PostPage
-        from apps.pessoas.models import DocentePage
         from apps.pesquisa.models import ProjetoPage
+        from apps.pessoas.models import DocentePage
 
         context = super().get_context(request, *args, **kwargs)
         context["total_docentes"] = DocentePage.objects.live().count()

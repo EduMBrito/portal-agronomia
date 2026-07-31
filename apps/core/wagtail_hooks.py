@@ -50,7 +50,8 @@ class ResumoConteudoPanel(Component):
         cards = "".join(
             f'<div style="text-align:center; padding:0.75rem 0.5rem; background:#fff; '
             f'border-radius:0.5rem; border:1px solid #e5e7eb;">'
-            f'<div style="font-size:1.75rem; font-weight:700; color:#1A3C6E; line-height:1;">{count}</div>'
+            f'<div style="font-size:1.75rem; font-weight:700; color:#1A3C6E; '
+            f'line-height:1;">{count}</div>'
             f'<div style="font-size:0.7rem; color:#4A5568; text-transform:uppercase; '
             f'letter-spacing:0.05em; margin-top:0.25rem;">{label}</div>'
             f'</div>'
@@ -76,9 +77,19 @@ class AcoesRapidasPanel(Component):
 
     def render_html(self, parent_context=None):
         from apps.ensino.models import DisciplinaPage, DisciplinasIndexPage
-        from apps.institucional.models import DocumentoPage, DocumentosIndexPage, EventoPage, EventosIndexPage
+        from apps.institucional.models import (
+            DocumentoPage,
+            DocumentosIndexPage,
+            EventoPage,
+            EventosIndexPage,
+        )
         from apps.noticias.models import PostPage, PostsIndexPage
-        from apps.pesquisa.models import ProjetoPage, ProjetosIndexPage, PublicacaoPage, PublicacoesIndexPage
+        from apps.pesquisa.models import (
+            ProjetoPage,
+            ProjetosIndexPage,
+            PublicacaoPage,
+            PublicacoesIndexPage,
+        )
         from apps.pessoas.models import DocentePage, DocentesIndexPage
 
         def _add_url(ChildType, ParentType):

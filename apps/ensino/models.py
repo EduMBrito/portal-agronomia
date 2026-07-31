@@ -3,7 +3,11 @@ from collections import defaultdict
 from django.db import models
 from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import (
-    FieldPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface,
+    FieldPanel,
+    InlinePanel,
+    MultiFieldPanel,
+    ObjectList,
+    TabbedInterface,
 )
 from wagtail.fields import RichTextField
 from wagtail.models import Orderable, Page

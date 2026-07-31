@@ -1,0 +1,29 @@
+[tool.ruff]
+# 100 e não os 88 do padrão: o p99 do código já está em 95 caracteres e apenas
+# 8 linhas passavam de 100, contra 96 linhas se adotássemos 88.
+line-length = 100
+target-version = "py312"
+
+# Migrações são geradas pelo Django — não faz sentido lintá-las.
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle — erros
+    "W",   # pycodestyle — avisos
+    "F",   # pyflakes — imports não usados, variáveis mortas, nomes indefinidos
+    "I",   # isort — ordenação de imports
+    "UP",  # pyupgrade — sintaxe moderna de Python
+    "B",   # flake8-bugbear — armadilhas comuns
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Os settings usam `from .base import *` de propósito, e o dev.py importa
+# socket no meio do arquivo para manter o bloco do debug_toolbar junto.
+"config/settings/*.py" = ["F403", "F405", "E402"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "config"]
+
+# Nota: este projeto usa o Ruff apenas como linter, sem formatter automático.
+# A decisão está registrada no CLAUDE.md e em docs/CONTRIBUTING.md.

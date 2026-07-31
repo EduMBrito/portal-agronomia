@@ -82,7 +82,9 @@ class Command(BaseCommand):
             ])
             self.stdout.write(f"  Coordenador: permissões completas em '{home}'")
         else:
-            self.stdout.write(self.style.WARNING("  Coordenador: HomePage não encontrada — crie a árvore primeiro."))
+            self.stdout.write(self.style.WARNING(
+                "  Coordenador: HomePage não encontrada — crie a árvore primeiro."
+            ))
 
         if collection:
             _set_collection_perms(grupo, collection, [
@@ -110,7 +112,9 @@ class Command(BaseCommand):
                 _set_page_perms(grupo, page, ["add_page", "change_page"])
                 self.stdout.write(f"  Docente: add+edit em '{page}' ({nome})")
             else:
-                self.stdout.write(self.style.WARNING(f"  Docente: {PageType.__name__} não encontrada."))
+                self.stdout.write(self.style.WARNING(
+                    f"  Docente: {PageType.__name__} não encontrada."
+                ))
 
         if collection:
             _set_collection_perms(grupo, collection, [
@@ -136,7 +140,9 @@ class Command(BaseCommand):
                 _set_page_perms(grupo, page, ["add_page", "change_page", "publish_page"])
                 self.stdout.write(f"  Técnico: add+edit+publish em '{page}' ({nome})")
             else:
-                self.stdout.write(self.style.WARNING(f"  Técnico: {PageType.__name__} não encontrada."))
+                self.stdout.write(self.style.WARNING(
+                    f"  Técnico: {PageType.__name__} não encontrada."
+                ))
 
         if collection:
             _set_collection_perms(grupo, collection, [

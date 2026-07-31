@@ -6,11 +6,13 @@ from django.utils import timezone
 from apps.ensino.models import DisciplinaPage, DisciplinasIndexPage
 from apps.institucional.models import EventoPage, EventosIndexPage
 from apps.noticias.models import PostPage, PostsIndexPage
-from apps.pessoas.models import AreaConhecimento, DocentePage, DocentesIndexPage
 from apps.pesquisa.models import (
-    ProjetoPage, ProjetosIndexPage,
-    PublicacaoPage, PublicacoesIndexPage,
+    ProjetoPage,
+    ProjetosIndexPage,
+    PublicacaoPage,
+    PublicacoesIndexPage,
 )
+from apps.pessoas.models import AreaConhecimento, DocentePage, DocentesIndexPage
 
 
 class Command(BaseCommand):
@@ -217,7 +219,7 @@ class Command(BaseCommand):
         if not index:
             return
 
-        carlos, ana, marcos, fernanda = docentes[0], docentes[1], docentes[2], docentes[3]
+        carlos, _, marcos, fernanda = docentes[0], docentes[1], docentes[2], docentes[3]
 
         dados = [
             {
@@ -447,7 +449,10 @@ class Command(BaseCommand):
                 "data_publicacao": datetime.date(2023, 8, 22),
             },
             {
-                "title": "Controle Biológico da Mosca-Branca em Culturas Hortícolas no Vale do São Francisco",
+                "title": (
+                    "Controle Biológico da Mosca-Branca em Culturas Hortícolas "
+                    "no Vale do São Francisco"
+                ),
                 "slug": "controle-biologico-mosca-branca",
                 "tipo": "artigo_periodico",
                 "resumo": (
@@ -491,7 +496,7 @@ class Command(BaseCommand):
         if not index:
             return
 
-        carlos, ana, marcos, fernanda = docentes[0], docentes[1], docentes[2], docentes[3]
+        carlos, ana, _, _ = docentes[0], docentes[1], docentes[2], docentes[3]
 
         dados = [
             {

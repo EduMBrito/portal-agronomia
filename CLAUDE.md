@@ -109,7 +109,11 @@ Todo projeto deve conter:
 ### Código
 - TypeScript com tipagem forte (sem `any` desnecessário)
 - Python com type hints (PEP 484)
-- Linting: ESLint + Prettier (TS/JS) ou Ruff + Black (Python)
+- Linting: ESLint + Prettier (TS/JS) ou Ruff (Python)
+- **Sem formatter automático em Python neste projeto.** Black e `ruff format`
+  reformatariam o idioma de painéis do Wagtail (`MultiFieldPanel([...], heading=...)`)
+  usado em todos os models — 31 arquivos, ~875 linhas. Decidido em 31/07/2026
+  manter a formatação manual e usar o Ruff só como linter. Ver `docs/CONTRIBUTING.md`.
 - Testes unitários: Jest (TS) ou Pytest (Python)
 - Funções públicas sempre com docstring ou JSDoc
 

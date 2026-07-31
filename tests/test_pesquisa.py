@@ -6,7 +6,6 @@ from django.db.models import ProtectedError
 from apps.base.choices import STATUS_PROJETO_CHOICES, TIPO_PROJETO_CHOICES
 from tests.conftest import _make_projeto, _make_publicacao
 
-
 # ---------------------------------------------------------------------------
 # Page: ProjetosIndexPage.get_context
 # ---------------------------------------------------------------------------

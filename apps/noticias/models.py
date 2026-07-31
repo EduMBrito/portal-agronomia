@@ -2,7 +2,10 @@ from django.core.paginator import Paginator
 from django.db import models
 from taggit.managers import TaggableManager
 from wagtail.admin.panels import (
-    FieldPanel, MultiFieldPanel, ObjectList, TabbedInterface,
+    FieldPanel,
+    MultiFieldPanel,
+    ObjectList,
+    TabbedInterface,
 )
 from wagtail.fields import StreamField
 from wagtail.models import Page

@@ -1,7 +1,7 @@
 import pytest
+from django.db import IntegrityError
 
 from apps.pessoas.models import AreaConhecimento
-
 
 # ---------------------------------------------------------------------------
 # Snippet: AreaConhecimento
@@ -13,7 +13,7 @@ def test_area_conhecimento_str():
 
 
 def test_area_conhecimento_slug_unico(area):
-    with pytest.raises(Exception):
+    with pytest.raises(IntegrityError):
         AreaConhecimento.objects.create(nome="Outra", slug=area.slug)
 
 

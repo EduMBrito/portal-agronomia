@@ -9,7 +9,6 @@ Roda uma vez logo após o `migrate`, antes do `populate_content`:
 O comando é idempotente — rodar de novo não duplica nada.
 """
 
-from typing import Optional
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -147,7 +146,7 @@ class Command(BaseCommand):
         titulo: str,
         slug: str,
         intro: str = "",
-    ) -> Optional[Page]:
+    ) -> Page | None:
         """Cria uma IndexPage filha da HomePage, se ainda não existir."""
         existente = page_type.objects.first()
         if existente:

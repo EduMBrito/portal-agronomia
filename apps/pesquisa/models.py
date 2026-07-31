@@ -3,7 +3,11 @@ from django.db import models
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from taggit.managers import TaggableManager
 from wagtail.admin.panels import (
-    FieldPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface,
+    FieldPanel,
+    InlinePanel,
+    MultiFieldPanel,
+    ObjectList,
+    TabbedInterface,
 )
 from wagtail.fields import StreamField
 from wagtail.models import Orderable, Page
@@ -11,8 +15,10 @@ from wagtail.search import index
 
 from apps.base.blocks import BODY_BLOCKS
 from apps.base.choices import (
-    STATUS_PROJETO_CHOICES, TIPO_PRODUTO_CHOICES,
-    TIPO_PROJETO_CHOICES, TIPO_PUBLICACAO_CHOICES,
+    STATUS_PROJETO_CHOICES,
+    TIPO_PRODUTO_CHOICES,
+    TIPO_PROJETO_CHOICES,
+    TIPO_PUBLICACAO_CHOICES,
 )
 from apps.base.mixins import SeoMixin
 
@@ -50,7 +56,9 @@ class ProjetoPage(SeoMixin, Page):
     descricao = StreamField(BODY_BLOCKS, verbose_name="Descrição", blank=True, use_json_field=True)
     data_inicio = models.DateField("Início")
     data_fim = models.DateField("Término", null=True, blank=True)
-    status = models.CharField("Status", max_length=20, choices=STATUS_PROJETO_CHOICES, default="em_andamento")
+    status = models.CharField(
+        "Status", max_length=20, choices=STATUS_PROJETO_CHOICES, default="em_andamento",
+    )
     coordenador = models.ForeignKey(
         "pessoas.DocentePage", on_delete=models.PROTECT,
         related_name="projetos_coordenados", verbose_name="Coordenador",
