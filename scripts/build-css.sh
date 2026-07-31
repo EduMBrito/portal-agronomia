@@ -15,7 +15,6 @@ TAILWIND_VERSION="v4.3.3"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN_DIR="$ROOT/.bin"
-BIN="$BIN_DIR/tailwindcss-$TAILWIND_VERSION"
 INPUT="$ROOT/assets/css/input.css"
 OUTPUT="$ROOT/static/css/tailwind.css"
 
@@ -31,6 +30,10 @@ case "$(uname -s)-$(uname -m)" in
     exit 1
     ;;
 esac
+
+# A plataforma entra no nome do arquivo: sem isso, alternar entre WSL2 e macOS
+# no mesmo checkout reaproveitaria um binário de outro sistema operacional.
+BIN="$BIN_DIR/tailwindcss-$TAILWIND_VERSION-$TARGET"
 
 if [ ! -x "$BIN" ]; then
   echo "==> Baixando Tailwind CLI $TAILWIND_VERSION ($TARGET)..."

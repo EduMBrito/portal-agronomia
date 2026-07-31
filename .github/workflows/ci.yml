@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+# Cancela execuções antigas do mesmo branch quando chega um push novo.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  lint:
+    name: Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - run: pip install -r requirements-dev.txt
+
+      - run: ruff check .
+
+  css:
+    name: CSS em dia
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # O binário standalone tem ~100 MB; sem cache seria baixado a cada run.
+      - uses: actions/cache@v4
+        with:
+          path: .bin
+          key: tailwind-${{ runner.os }}-v4.3.3
+
+      - name: Recompilar o CSS
+        run: ./scripts/build-css.sh
+
+      # static/css/tailwind.css é versionado. Se alguém mexer num template e
+      # esquecer de rodar o build, o portal vai para produção com CSS defasado
+      # e classes novas simplesmente não terão efeito. Este passo pega isso.
+      - name: Conferir se o CSS commitado está atualizado
+        run: |
+          if ! git diff --quiet static/css/tailwind.css; then
+            echo "::error file=static/css/tailwind.css::CSS desatualizado — rode ./scripts/build-css.sh e faça commit do resultado."
+            git diff --stat static/css/tailwind.css
+            exit 1
+          fi
+          echo "CSS commitado bate com os templates."
+
+  test:
+    name: Testes
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: portal_agronomia
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # manage.py cai em config.settings.dev por padrão; aqui queremos o test.
+      DJANGO_SETTINGS_MODULE: config.settings.test
+      SECRET_KEY: chave-de-ci-sem-valor-em-producao
+      DB_NAME: portal_agronomia
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      # O serviço postgres é publicado no host do runner, não em 'db' como no
+      # docker-compose — por isso o default de config/settings/test.py não serve.
+      DB_HOST: localhost
+      DB_PORT: "5432"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - run: pip install -r requirements-dev.txt
+
+      # Pega model alterado sem a migração correspondente — erro que só
+      # apareceria no deploy, na hora de rodar o migrate no campus.
+      - name: Conferir migrações pendentes
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: pytest
+        run: pytest --cov=apps --cov-report=term-missing

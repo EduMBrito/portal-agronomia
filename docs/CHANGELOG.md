@@ -25,8 +25,10 @@ Seções: Added, Changed, Fixed, Removed
 - `static/js/htmx.min.js` — HTMX 2.0.3 servido localmente, sem CDN
 
 - `pyproject.toml` com a configuração do Ruff — regras `E`, `W`, `F`, `I`, `UP`, `B`, linha de 100 caracteres, migrações excluídas
+- `.github/workflows/ci.yml` — CI no GitHub Actions com três jobs paralelos: Ruff, conferência de que o CSS commitado está atualizado, e testes com PostgreSQL 16 + checagem de migrações pendentes
 
 ### Fixed
+- `scripts/build-css.sh` — o binário do Tailwind era cacheado só por versão; alternar entre WSL2 e macOS no mesmo checkout reaproveitaria o executável do outro sistema. A plataforma agora entra no nome do arquivo
 - `apps/institucional/models.py` — `ObjectList` e `TabbedInterface` importados e nunca usados
 - `apps/core/management/commands/populate_content.py` — três variáveis atribuídas e nunca usadas
 - `tests/test_pessoas.py` — `pytest.raises(Exception)` trocado por `IntegrityError`; a forma genérica passaria mesmo se o erro fosse outro

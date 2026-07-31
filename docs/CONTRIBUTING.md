@@ -188,6 +188,35 @@ mortas, nomes indefinidos e ordenação de imports.
 Se um dia o projeto ganhar mais colaboradores, vale reavaliar — formatter
 automático rende mais quanto mais gente mexe no código.
 
+## Integração Contínua
+
+`.github/workflows/ci.yml` roda a cada push em `main`/`develop` e em todo pull
+request. São três jobs paralelos:
+
+| Job | O que faz |
+|---|---|
+| **Ruff** | `ruff check .` |
+| **CSS em dia** | recompila o Tailwind e falha se `static/css/tailwind.css` estiver diferente do commitado |
+| **Testes** | sobe um PostgreSQL 16, confere migrações pendentes e roda o pytest com cobertura |
+
+O job de CSS existe por causa de uma escolha do projeto: o CSS compilado é
+versionado. Sem essa checagem, alguém mexeria num template, esqueceria de rodar
+`./scripts/build-css.sh`, e o portal iria para produção com CSS defasado — as
+classes novas simplesmente não teriam efeito, sem nenhum erro visível.
+
+A checagem de migrações (`makemigrations --check --dry-run`) pega model alterado
+sem a migração correspondente, erro que de outro modo só apareceria na hora do
+`migrate` no servidor do campus.
+
+Antes de abrir um PR, dá para rodar tudo localmente:
+
+```bash
+docker compose exec web ruff check .
+docker compose exec web python manage.py makemigrations --check --dry-run
+docker compose exec web pytest
+./scripts/build-css.sh && git diff --exit-code static/css/tailwind.css
+```
+
 ## Adicionando um Novo Módulo
 
 1. Criar o app: `docker compose exec web python manage.py startapp nome_modulo apps/nome_modulo`
