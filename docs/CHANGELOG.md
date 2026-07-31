@@ -7,25 +7,39 @@ Seções: Added, Changed, Fixed, Removed
 
 ## [Unreleased]
 
-### Added
-- Management command `bootstrap_site` — cria a HomePage, aponta o Site do Wagtail para ela, remove a página padrão "Welcome to your new Wagtail site!" e cria as sete IndexPages com os slugs esperados pelo menu. Idempotente
-- Busca textual em todo o portal (`/busca/`) usando o backend nativo do Wagtail
-- Suíte de testes com pytest + pytest-django — 59 testes cobrindo os 7 módulos
-- `tests/test_pesquisa.py` (20 testes) — filtros por tipo e status, cumulatividade, ordenação, paginação (9 e 15), rascunhos fora da listagem pública, relações reversas do perfil de docente e `PROTECT` do coordenador
-- `tests/test_noticias.py` (9 testes) — feed cronológico, paginação, rascunhos, `PROTECT` do autor e preenchimento automático de `data_publicacao`
-- `config/settings/production.py` — HTTPS, HSTS, cookies seguros, `ManifestStaticFilesStorage`, logging para stdout
-- `docker-compose.prod.yml`, `docs/nginx.conf` e `docs/gunicorn.service`
-- Management command `populate_content` — carga de conteúdo de exemplo para demonstração
-- Página "Sobre o LADI" (`/sobre/`) e logo no rodapé
-- Pasta `docs/` com ARCHITECTURE.md, API.md, DATABASE.md, DEPLOY.md, CONTRIBUTING.md, CHANGELOG.md
+---
 
+## [0.4.0] - 2026-07-31
+
+Portal autossuficiente e com rede de segurança: nenhuma dependência de CDN
+externo, integração contínua e testes nos 7 módulos. É a versão pronta para
+o deploy no servidor do campus.
+
+### Added
+
+**Estrutura e conteúdo**
+- Management command `bootstrap_site` — cria a HomePage, aponta o Site do Wagtail para ela, remove a página padrão "Welcome to your new Wagtail site!" e cria as sete IndexPages com os slugs esperados pelo menu. Idempotente
+- Management command `populate_content` — carga de conteúdo de exemplo para demonstração
+- Busca textual em todo o portal (`/busca/`) usando o backend nativo do Wagtail
+- Página "Sobre o LADI" (`/sobre/`) e logo no rodapé
+
+**Frontend sem CDN**
 - `assets/css/input.css` — fonte do Tailwind com a paleta institucional no bloco `@theme`
 - `scripts/build-css.sh` — compila o CSS com o binário standalone do Tailwind (sem Node/npm); aceita `--watch`
 - `static/css/tailwind.css` — CSS compilado e versionado (~32 KB minificados)
-- `static/js/htmx.min.js` — HTMX 2.0.3 servido localmente, sem CDN
+- `static/js/htmx.min.js` — HTMX 2.0.3 servido localmente
 
+**Qualidade**
+- Suíte de testes com pytest + pytest-django — 59 testes cobrindo os 7 módulos
+- `tests/test_pesquisa.py` (20 testes) — filtros por tipo e status, cumulatividade, ordenação, paginação (9 e 15), rascunhos fora da listagem pública, relações reversas do perfil de docente e `PROTECT` do coordenador
+- `tests/test_noticias.py` (9 testes) — feed cronológico, paginação, rascunhos, `PROTECT` do autor e preenchimento automático de `data_publicacao`
 - `pyproject.toml` com a configuração do Ruff — regras `E`, `W`, `F`, `I`, `UP`, `B`, linha de 100 caracteres, migrações excluídas
 - `.github/workflows/ci.yml` — CI no GitHub Actions com três jobs paralelos: Ruff, conferência de que o CSS commitado está atualizado, e testes com PostgreSQL 16 + checagem de migrações pendentes
+
+**Produção**
+- `config/settings/production.py` — HTTPS, HSTS, cookies seguros, `ManifestStaticFilesStorage`, logging para stdout
+- `docker-compose.prod.yml`, `docs/nginx.conf` e `docs/gunicorn.service`
+- Pasta `docs/` com ARCHITECTURE.md, API.md, DATABASE.md, DEPLOY.md, CONTRIBUTING.md, CHANGELOG.md
 
 ### Fixed
 - `scripts/build-css.sh` — o binário do Tailwind era cacheado só por versão; alternar entre WSL2 e macOS no mesmo checkout reaproveitaria o executável do outro sistema. A plataforma agora entra no nome do arquivo
@@ -95,7 +109,8 @@ Seções: Added, Changed, Fixed, Removed
 
 ---
 
-[Unreleased]: https://github.com/EduMBrito/portal-agronomia/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/EduMBrito/portal-agronomia/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/EduMBrito/portal-agronomia/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/EduMBrito/portal-agronomia/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/EduMBrito/portal-agronomia/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/EduMBrito/portal-agronomia/releases/tag/v0.1.0
