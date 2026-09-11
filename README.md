@@ -153,6 +153,7 @@ portal-agronomia/
 | [DEPLOY.md](docs/DEPLOY.md) | Passo a passo para o servidor do campus |
 | [API.md](docs/API.md) | URLs públicas, filtros, parâmetros de busca |
 | [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Git workflow, testes, lint e CI |
+| [SEGURANCA.md](docs/SEGURANCA.md) | Pendências de segurança antes do deploy |
 | [CHANGELOG.md](docs/CHANGELOG.md) | Histórico de versões |
 
 ---
