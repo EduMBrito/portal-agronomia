@@ -120,6 +120,7 @@ Sem modelos de negócio. Contém:
 - `management/commands/bootstrap_site.py` — monta a árvore de páginas em uma instalação nova
 - `management/commands/setup_grupos.py` — cria grupos Coordenador, Docente, Técnico com permissões Wagtail
 - `management/commands/populate_content.py` — conteúdo de exemplo (só desenvolvimento)
+- `management/commands/importar_lattes.py` — importa perfil e projetos de um XML do Lattes como rascunho; idempotente
 
 ### `apps/pessoas`
 - `AreaConhecimento` — snippet (sem URL pública), usado como tag de classificação
