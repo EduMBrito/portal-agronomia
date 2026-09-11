@@ -471,6 +471,13 @@ O que falta:
    próprias do deploy: trocar o hostname do Site em `/admin/sites/`, certificado
    SSL e a carga de conteúdo real
 
+3. **Pendências de segurança — ver `docs/SEGURANCA.md`.** Auditoria de
+   11/09/2026. Três bloqueadores antes de expor o portal à internet: Django 5.1
+   e Wagtail 6.3 estão EOL e sem patch de segurança; o Nginx serve `/media/`
+   como alias direto e contorna a checagem de permissão de documentos do
+   Wagtail; e o upload de SVG está habilitado, que o Wagtail não sanitiza.
+   Mais quatro itens moderados no mesmo arquivo
+
 ## Alimentação do Portal — estratégia de duas fontes
 
 Decidido em 31/07/2026, depois de analisar um XML real do Lattes e testar a API
