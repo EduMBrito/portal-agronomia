@@ -1,5 +1,6 @@
 from django.core.paginator import Paginator
 from django.db import models
+from django.shortcuts import redirect
 from django.utils import timezone
 from modelcluster.fields import ParentalManyToManyField
 from wagtail.admin.panels import (
@@ -59,6 +60,25 @@ class DocumentoPage(SeoMixin, Page):
     class Meta:
         verbose_name = "Documento Institucional"
         verbose_name_plural = "Documentos Institucionais"
+
+    def serve(self, request, *args, **kwargs):
+        """Entrega o PDF direto, em vez de renderizar uma página de detalhe.
+
+        A DocumentoPage guarda apenas metadados — tipo, descrição, as duas datas
+        e o flag `ativo` — e a listagem em /documentos/ já mostra todos eles.
+        Uma página de detalhe não teria nada novo na tela, só mais um template
+        para manter e um clique a mais entre a pessoa e o arquivo.
+
+        O que a URL própria dá, e é por isso que ela existe, é um link estável e
+        citável: /documentos/regulamento-tcc/ pode entrar num ofício ou numa
+        ementa e continua valendo quando a comissão substituir o PDF por uma
+        versão nova — a URL do arquivo muda, a da página não.
+
+        O redirecionamento é temporário (302) justamente por isso: o destino
+        muda a cada troca de arquivo, e um 301 ficaria no cache do navegador
+        apontando para a versão antiga.
+        """
+        return redirect(self.arquivo.url)
 
 
 class EventosIndexPage(Page):

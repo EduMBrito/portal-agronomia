@@ -9,6 +9,24 @@ Seções: Added, Changed, Fixed, Removed
 
 ### Changed
 
+- `DocumentoPage` passa a redirecionar (302) direto para o PDF, em vez de tentar renderizar
+  uma página de detalhe. O model guarda só metadados — tipo, descrição, as duas datas e o
+  flag `ativo` — e a listagem em `/documentos/` já mostra todos eles, então uma página de
+  detalhe não teria nada novo na tela. O que a URL própria dá, e por isso ela continua
+  existindo, é um link estável e citável: `/documentos/regulamento-tcc/` pode entrar num
+  ofício ou numa ementa e segue valendo quando a comissão substituir o arquivo. O 302 é
+  proposital — um 301 ficaria no cache do navegador apontando para a versão antiga
+
+### Fixed
+
+- Toda página de documento publicada respondia 500: a `DocumentoPage` tinha URL pública e
+  não existia `institucional/documento_page.html`. Defeito anterior ao upgrade para as
+  versões LTS, descoberto ao renderizar as páginas de verdade. O `xfail` estrito que o
+  documentava em `tests/test_templates.py` deu lugar a três testes do comportamento novo,
+  incluindo o que garante que a URL da página sobrevive à troca do arquivo
+
+### Changed
+
 - **Django 5.1 → 5.2 LTS e Wagtail 6.3 → 7.4 LTS.** As duas versões anteriores estavam
   fora de suporte e não recebiam mais correção de segurança: Django 5.1 encerrou em
   03/12/2025 e Wagtail 6.3 LTS em 01/05/2026. O novo par tem suporte até abril/2028 e
