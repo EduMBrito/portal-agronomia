@@ -45,7 +45,6 @@ LOCAL_APPS = [
 
 THIRD_PARTY_APPS = [
     "django_htmx",
-    "django_extensions",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + WAGTAIL_APPS + LOCAL_APPS + THIRD_PARTY_APPS
@@ -115,7 +114,21 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 WAGTAIL_SITE_NAME = config("WAGTAIL_SITE_NAME", default="Portal Agronomia IFSertãoPE")
 WAGTAILADMIN_BASE_URL = config("WAGTAILADMIN_BASE_URL", default="http://localhost:8000")
 WAGTAIL_ENABLE_UPDATE_CHECK = False
-WAGTAILIMAGES_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp", "svg"]
+
+# SVG fora da lista de propósito: o Wagtail não sanitiza SVG, e um arquivo com
+# <script> servido do próprio domínio é XSS na origem do portal — bastaria um
+# membro da comissão abrir a imagem logado. Se um dia for preciso (logo, ícone),
+# servir de um location próprio com Content-Disposition: attachment.
+WAGTAILIMAGES_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"]
+
+# Explícito, e não herdado do default, porque é o que sustenta a regra de
+# permissão dos documentos. Com `serve_view` o Wagtail entrega o arquivo pela
+# rota /documents/<id>/<nome> depois de checar a coleção; se um dia o default
+# mudar, ou a storage virar remota, o Wagtail passaria a redirecionar para a
+# URL crua em /media/ — que o Nginx bloqueia (ver docs/nginx.conf) e os
+# downloads quebrariam em silêncio.
+WAGTAILDOCS_SERVE_METHOD = "serve_view"
+
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
 EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
