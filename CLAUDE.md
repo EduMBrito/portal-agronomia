@@ -508,7 +508,7 @@ gratuito, leva cinco minutos, e é o que garante cobertura permanente da rotina.
 ### Decisões tomadas
 
 - **Conteúdo importado nasce como rascunho** (`live=False`). A comissão revisa e
-  publica. O Wagtail 6.3 tem publicação em lote na listagem de páginas
+  publica. O Wagtail tem publicação em lote na listagem de páginas
 - **Registro já existente é atualizado automaticamente**, sem perguntar
 - **Deduplicação por DOI normalizado** para publicações; os comandos são
   idempotentes, como o `bootstrap_site`

@@ -7,6 +7,32 @@ Seções: Added, Changed, Fixed, Removed
 
 ## [Unreleased]
 
+### Changed
+
+- **Django 5.1 → 5.2 LTS e Wagtail 6.3 → 7.4 LTS.** As duas versões anteriores estavam
+  fora de suporte e não recebiam mais correção de segurança: Django 5.1 encerrou em
+  03/12/2025 e Wagtail 6.3 LTS em 01/05/2026. O novo par tem suporte até abril/2028 e
+  novembro/2027. Nenhuma migração nova foi necessária nos models do projeto; o Wagtail
+  aplica as suas próprias. Sem aviso de deprecação restante na suíte
+
+### Fixed
+
+- `templates/ensino/disciplina_page.html` carregava `wagtaildocs_tags`, biblioteca de tags
+  que não existe — toda página de disciplina respondia 500. O template não usava nenhuma
+  tag dela. Erro anterior ao upgrade, descoberto ao renderizar as páginas de verdade
+
+### Added
+
+- `tests/test_templates.py` — 28 testes que pedem cada URL pública pelo client do Django,
+  compilando e renderizando o template. O resto da suíte exercita apenas `get_context`,
+  que nunca toca no template, e foi por isso que o erro acima passou despercebido.
+  Cobre listagens, filtros (inclusive valor inválido), páginas de detalhe, busca e o
+  escape do termo pesquisado
+- Um `xfail` estrito documenta um segundo defeito anterior ao upgrade: `DocumentoPage` tem
+  URL pública mas não existe `institucional/documento_page.html`, então toda página de
+  documento publicada responde 500. Decidir se ela ganha template ou deixa de ser
+  navegável — quando resolver, o `xfail` acusa e deve ser removido
+
 ### Added
 
 - Management command `importar_lattes <arquivo.xml>` — primeira das duas ferramentas de

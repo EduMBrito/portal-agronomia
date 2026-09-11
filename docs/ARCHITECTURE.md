@@ -10,7 +10,7 @@ O CMS é operado por uma **comissão gestora**, não pelos docentes individualme
 
 | Camada | Tecnologia | Versão |
 |---|---|---|
-| CMS / Backend | Wagtail (Django) | 6.3 / 5.1 |
+| CMS / Backend | Wagtail (Django) | 7.4 LTS / 5.2 LTS |
 | Banco de dados | PostgreSQL | 16 |
 | Servidor WSGI | Gunicorn | — |
 | Proxy reverso | Nginx | — |
