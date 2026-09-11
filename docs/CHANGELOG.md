@@ -7,6 +7,33 @@ Seções: Added, Changed, Fixed, Removed
 
 ## [Unreleased]
 
+### Added
+
+- Management command `importar_lattes <arquivo.xml>` — primeira das duas ferramentas de
+  carga em massa para a comissão gestora. Lê o XML exportado do Currículo Lattes e cria ou
+  atualiza `DocentePage` (titulação mais alta concluída, instituição, áreas de atuação e
+  bio) e `ProjetoPage` (natureza, situação, período, equipe e descrição), sempre como
+  rascunho para a comissão revisar e publicar. Idempotente, como o `bootstrap_site`:
+  deduplica o docente pelo `lattes_url` e o projeto pelo slug do título
+  - `--email` sobrepõe o e-mail do XML, que costuma ser pessoal; obrigatório quando o XML
+    não traz nenhum e o campo é requerido na `DocentePage`
+  - `--dry-run` mostra o resultado e desfaz tudo no final
+  - Projeto cujo coordenador ainda não tem perfil no portal é pulado e relatado com o nome
+    do responsável — `ProjetoPage.coordenador` é FK obrigatória e atribuí-la ao dono do XML
+    publicaria autoria errada
+  - Integrantes sem perfil (estudantes, externos) são listados no relatório final:
+    `participantes_docentes` só aceita `DocentePage`
+  - Alerta quando o XML está sob `MEDIA_ROOT`, que o Nginx serve sem autenticação em
+    produção — o arquivo tem CPF, RG, filiação e telefone. Nada disso entra no banco
+- 33 testes em `tests/test_importar_lattes.py` — parser (tradução do vocabulário do CNPq,
+  titulação, áreas, datas por ano) e comando de ponta a ponta (rascunho, idempotência,
+  `--dry-run`, coordenador ausente, árvore de páginas ausente)
+
+### Fixed
+
+- `resumir()` remove o espaço à esquerda que o `Truncator.chars()` do Django 5.1 devolve —
+  ele apareceria no começo do resumo de todo card de listagem de projeto
+
 ---
 
 ## [0.4.0] - 2026-07-31
