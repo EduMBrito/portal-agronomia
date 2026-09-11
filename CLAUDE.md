@@ -471,13 +471,12 @@ O que falta:
    próprias do deploy: trocar o hostname do Site em `/admin/sites/`, certificado
    SSL e a carga de conteúdo real
 
-3. **Pendências de segurança — ver `docs/SEGURANCA.md`.** Auditoria de
-   11/09/2026. O item 1 (Django e Wagtail EOL) foi resolvido no mesmo dia — o
-   projeto roda Django 5.2 LTS + Wagtail 7.4 LTS. Restam dois bloqueadores
-   antes de expor o portal à internet: o Nginx serve `/media/` como alias
-   direto e contorna a checagem de permissão de documentos do Wagtail, e o
-   upload de SVG está habilitado, que o Wagtail não sanitiza. Mais quatro
-   itens moderados no mesmo arquivo
+3. **Segurança — ver `docs/SEGURANCA.md`.** A auditoria de 11/09/2026 levantou
+   sete itens e todos foram resolvidos no mesmo dia. Não há bloqueador
+   conhecido de código ou configuração para o deploy. O arquivo guarda o
+   registro de cada problema original junto da correção, para que ninguém
+   "simplifique" de volta — em especial o `/media/` do Nginx, que não pode
+   voltar a ser um alias único, e o SVG, que não pode ser reabilitado
 
 ## Alimentação do Portal — estratégia de duas fontes
 

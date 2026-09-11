@@ -7,6 +7,41 @@ Seções: Added, Changed, Fixed, Removed
 
 ## [Unreleased]
 
+### Security
+
+Fecha os seis itens restantes do `docs/SEGURANCA.md` — o item 1, das versões EOL, saiu no
+upgrade para as LTS.
+
+- **`/media/` deixa de ser alias único no Nginx** (item 2). Só `/media/images/` e
+  `/media/original_images/` são servidos; o resto devolve 404. Documento passa pela rota
+  `/documents/` do Wagtail, que é onde a permissão de coleção é checada — sem isso,
+  bastava adivinhar o nome do arquivo para baixar documento de coleção privada, ou o XML
+  do Lattes com CPF e telefone
+- **`WAGTAILDOCS_SERVE_METHOD = "serve_view"` explícito**, e não herdado do default: é o
+  que sustenta a regra acima. Com `redirect`, o Wagtail mandaria o navegador para a URL
+  crua em `/media/`, que agora está bloqueada, e todo download quebraria em silêncio
+- **SVG fora do `WAGTAILIMAGES_EXTENSIONS`** (item 3). O Wagtail não sanitiza SVG, e um
+  arquivo com `<script>` servido do próprio domínio é XSS na origem do portal
+- **Limite de tentativas na tela de login** (item 4): `limit_req` no Nginx, 5 por minuto
+  por IP com `burst=3 nodelay`. Correspondência exata em `/admin/login/`, para não
+  atrapalhar a comissão editando conteúdo. Nenhuma dependência nova
+- **`docs/nginx.conf` virou a fonte única** (item 5). O `DEPLOY.md` manda copiá-lo em vez
+  de repetir a configuração; enquanto havia duas cópias, uma ficou sem `ssl_protocols`.
+  Ganhou também `server_tokens off`
+- **Container não roda mais como root** (item 6): usuário `portal`, UID 1000 para bater
+  com o dono dos bind mounts. As ferramentas de compilação saíram junto — `psycopg2-binary`
+  e `Pillow` são wheels e nada era construído ali. A imagem caiu de 1,18 GB para 871 MB.
+  O `CMD` padrão deixou de ser `runserver` e virou Gunicorn
+- **`django_extensions` sai da produção** (item 7), para o `dev.py` junto do
+  `debug_toolbar`
+
+### Added
+
+- `tests/test_seguranca.py` — 12 testes travando o que é fácil desfazer sem perceber:
+  recusa de SVG (subindo um arquivo com `<script>` pelo formulário de imagem do Wagtail),
+  método de entrega dos documentos, URL de documento fora de `/media/`, e ausência das
+  ferramentas de desenvolvimento no `INSTALLED_APPS` da base
+
 ### Changed
 
 - `DocumentoPage` passa a redirecionar (302) direto para o PDF, em vez de tentar renderizar

@@ -4,11 +4,18 @@ Auditoria do código feita em **11 de setembro de 2026**, antes de expor o porta
 à internet. Cobre `config/settings/`, `docs/nginx.conf`, `Dockerfile`,
 `docker-compose.prod.yml`, views, templates e `wagtail_hooks.py`.
 
-A lista está ordenada por risco. Os itens 1 a 3 são bloqueadores: não subir o
+A lista está ordenada por risco. Os itens 1 a 3 eram bloqueadores: não subir o
 portal para a internet com qualquer um deles em aberto.
 
-**Status:** item 1 resolvido em 11/09/2026 (PR #3). Restam os itens 2 e 3, que
-são bloqueadores, e os quatro moderados.
+Cada item guarda o registro do problema original, e não só a correção — é o que
+permite entender depois por que a configuração é do jeito que é, e evita que
+alguém "simplifique" de volta.
+
+**Status:** todos os sete itens resolvidos em 11/09/2026. Do ponto de vista do
+código e da configuração, não há bloqueador conhecido para o deploy.
+
+O que continua pendente está na última seção e não é auditável por código:
+permissão do `.env` no servidor e um restore de backup efetivamente testado.
 
 ---
 
@@ -34,7 +41,7 @@ nenhum hardening de Nginx compensaria.
 **Próxima revisão:** conferir as datas de fim de suporte antes de
 novembro/2027, que é quando o Wagtail 7.4 LTS encerra — é o mais curto dos dois.
 
-## 2. `/media/` servido como alias direto pelo Nginx  🔴 bloqueador
+## 2. `/media/` servido como alias direto pelo Nginx  ✅ resolvido em 11/09/2026
 
 Está nos dois lugares: `docs/nginx.conf` e o bloco de Nginx do `docs/DEPLOY.md`.
 
@@ -51,11 +58,20 @@ Consequências concretas:
 - O XML do Lattes deixado em `media/` vira download público — CPF, RG,
   filiação, endereço e telefone
 
-**Correção:** liberar no Nginx apenas `/media/images/` e
-`/media/original_images/`, que são públicos por natureza, e negar o resto.
+**Corrigido no PR #6.** O `docs/nginx.conf` libera apenas `/media/images/` e
+`/media/original_images/` e devolve 404 para todo o resto de `/media/`.
 Documento passa pela rota `/documents/` do Wagtail.
 
-## 3. Upload de SVG habilitado  🔴 bloqueador
+O `WAGTAILDOCS_SERVE_METHOD = "serve_view"` virou explícito em
+`config/settings/base.py`: é o que garante que o Wagtail entrega o arquivo pela
+própria rota, depois de checar a coleção, em vez de redirecionar para a URL
+crua. Se isso mudar, o Nginx bloqueia e todo download quebra — por isso há
+teste travando o valor.
+
+Verificado com o Nginx rodando: imagem 200, `/media/documents/ata.pdf` 404,
+XML solto em `/media/` 404, e `/media/images/../documents/ata.pdf` 404.
+
+## 3. Upload de SVG habilitado  ✅ resolvido em 11/09/2026
 
 `WAGTAILIMAGES_EXTENSIONS` inclui `"svg"` em `config/settings/base.py`.
 
@@ -65,47 +81,67 @@ XSS armazenado rodando na origem do portal; se um membro da comissão abrir a
 imagem logado, a sessão dele está no escopo. Com o item 2 em aberto, o arquivo
 chega cru ao navegador.
 
-**Correção:** remover `svg` da lista. Se a comissão precisar de SVG para logo,
-servir num `location` próprio com `Content-Disposition: attachment`.
+**Corrigido no PR #6.** `svg` saiu do `WAGTAILIMAGES_EXTENSIONS`. Há teste que
+sobe um SVG com `<script>` dentro pelo formulário de imagem do Wagtail e exige
+que seja recusado.
 
-## 4. Sem proteção contra força bruta no `/admin/`  🟡 moderado
+Se um dia a comissão precisar de SVG para logo, o caminho é um `location`
+próprio no Nginx com `Content-Disposition: attachment` — não reabrir a extensão.
+
+## 4. Sem proteção contra força bruta no `/admin/`  ✅ resolvido em 11/09/2026
 
 Django e Wagtail não têm bloqueio por tentativas. O portal é público e existem
 3 a 5 contas da comissão.
 
-**Correção recomendada:** `limit_req` no Nginx para `location /admin/login/` —
-zero dependência nova, que é o que importa com um mantenedor só.
+**Corrigido no PR #6** com `limit_req` no Nginx: 5 tentativas por minuto por
+IP, `burst=3 nodelay`. É `location =` (correspondência exata) e não prefixo,
+para não atrapalhar a comissão editando conteúdo, que faz dezenas de
+requisições por minuto em `/admin/`.
 
-`django-axes` resolve melhor e registra as tentativas, mas custa mais uma
-dependência, migração e tabela para sustentar. Só vale se a auditoria
-institucional exigir o log.
+Zero dependência nova, que é o que importa com um mantenedor só. Verificado:
+a quinta tentativa seguida já leva 503.
 
-## 5. Dois `nginx.conf` divergentes  🟡 moderado
+`django-axes` resolveria melhor e registraria as tentativas, mas custa mais uma
+dependência, migração e tabela. Só vale se a auditoria institucional exigir o
+log de tentativas.
+
+## 5. Dois `nginx.conf` divergentes  ✅ resolvido em 11/09/2026
 
 O bloco do `DEPLOY.md` tem `ssl_protocols TLSv1.2 TLSv1.3` e `http2`; o
 `docs/nginx.conf` não tem nenhum dos dois e herda o default do sistema, que em
 Ubuntu mais antigo ainda aceita TLS 1.0 e 1.1.
 
-**Correção:** consolidar num arquivo só e o outro apontar para ele. Enquanto
-houver dois, alguém vai seguir o errado.
+**Corrigido no PR #6.** O `docs/nginx.conf` é a fonte única e o `DEPLOY.md`
+manda copiá-lo, em vez de repetir o conteúdo. A configuração passa no
+`nginx -t`, validada em container.
 
-## 6. Container roda como root  🟡 moderado
+## 6. Container roda como root  ✅ resolvido em 11/09/2026
 
 O `Dockerfile` não define `USER`, e `gcc` e `libpq-dev` permanecem na imagem
 final. Uma falha de execução remota no app vira root no container, com
 compilador disponível.
 
-**Correção:** usuário não-privilegiado no `Dockerfile`. Build em múltiplos
-estágios reduz a imagem e tira as ferramentas de compilação, mas isso é
-otimização — o `USER` é o que importa.
+**Corrigido no PR #6.** O `Dockerfile` cria e usa o usuário `portal`
+(UID 1000, para bater com o dono dos bind mounts de `media/` e `staticfiles/`).
 
-## 7. `django_extensions` em produção  🟡 moderado
+As ferramentas de compilação saíram junto: `psycopg2-binary` e `Pillow` são
+wheels manylinux e nada era construído ali. A imagem caiu de 1,18 GB para
+871 MB e não tem mais compilador. Verificado no container: `uid=1000(portal)`,
+Pillow grava JPEG, `psycopg2` importa.
+
+O `CMD` padrão deixou de ser o `runserver` e virou Gunicorn — se alguém subir a
+imagem sem o `command` do compose, cai num servidor de produção.
+
+## 7. `django_extensions` em produção  ✅ resolvido em 11/09/2026
 
 Está em `THIRD_PARTY_APPS` no `config/settings/base.py`, que o `production.py`
 importa. É ferramenta de desenvolvimento (`shell_plus`, `runscript`) e amplia a
 superfície sem necessidade.
 
-**Correção:** mover para o `INSTALLED_APPS` do `dev.py`.
+**Corrigido no PR #6.** Saiu do `THIRD_PARTY_APPS` do `base.py` e passou para
+o `INSTALLED_APPS` do `dev.py`, junto do `debug_toolbar`. Há teste conferindo
+que nenhum dos dois está na base, já que o `production.py` faz
+`from .base import *`.
 
 ---
 

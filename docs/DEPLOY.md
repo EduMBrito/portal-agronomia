@@ -170,45 +170,29 @@ Instale o Nginx no host (não no Docker):
 sudo apt install -y nginx
 ```
 
-Crie `/etc/nginx/sites-available/portal-agronomia`:
+O arquivo de configuração está versionado em [`nginx.conf`](nginx.conf) — é a
+fonte única, não copie o conteúdo para cá. Ele já traz o bloqueio de `/media/`
+para tudo que não seja imagem, o limite de tentativas na tela de login e o
+`ssl_protocols`.
 
-```nginx
-server {
-    listen 80;
-    server_name portal.agronomia.ifsertao.edu.br;
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name portal.agronomia.ifsertao.edu.br;
-
-    ssl_certificate     /etc/letsencrypt/live/portal.agronomia.ifsertao.edu.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/portal.agronomia.ifsertao.edu.br/privkey.pem;
-    ssl_protocols       TLSv1.2 TLSv1.3;
-
-    client_max_body_size 20M;
-
-    location /static/ {
-        alias /opt/portal-agronomia/staticfiles/;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-
-    location /media/ {
-        alias /opt/portal-agronomia/media/;
-        expires 7d;
-    }
-
-    location / {
-        proxy_pass         http://127.0.0.1:8000;
-        proxy_set_header   Host $host;
-        proxy_set_header   X-Real-IP $remote_addr;
-        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header   X-Forwarded-Proto $scheme;
-    }
-}
+```bash
+sudo cp docs/nginx.conf /etc/nginx/sites-available/portal-agronomia
+sudo nano /etc/nginx/sites-available/portal-agronomia   # trocar server_name e caminhos
 ```
+
+Três coisas precisam bater com o servidor antes de ativar:
+
+| No arquivo | Trocar por |
+|---|---|
+| `server_name portal.agronomia.ifsertao.edu.br` | o hostname real |
+| `/opt/portal-agronomia/` | o diretório onde o projeto foi clonado |
+| caminhos do `ssl_certificate` | onde o Certbot ou o CTI deixou o certificado |
+
+> **Não transformar `/media/` num alias único de novo.** Os documentos ficam em
+> `media/documents/` e a permissão de coleção é checada na rota `/documents/`
+> do Wagtail. Servir o diretório inteiro contorna essa checagem — era o
+> comportamento antigo e está registrado como item 2 do
+> [`SEGURANCA.md`](SEGURANCA.md).
 
 Ative e reinicie:
 
