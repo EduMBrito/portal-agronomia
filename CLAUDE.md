@@ -472,11 +472,12 @@ O que falta:
    SSL e a carga de conteúdo real
 
 3. **Pendências de segurança — ver `docs/SEGURANCA.md`.** Auditoria de
-   11/09/2026. Três bloqueadores antes de expor o portal à internet: Django 5.1
-   e Wagtail 6.3 estão EOL e sem patch de segurança; o Nginx serve `/media/`
-   como alias direto e contorna a checagem de permissão de documentos do
-   Wagtail; e o upload de SVG está habilitado, que o Wagtail não sanitiza.
-   Mais quatro itens moderados no mesmo arquivo
+   11/09/2026. O item 1 (Django e Wagtail EOL) foi resolvido no mesmo dia — o
+   projeto roda Django 5.2 LTS + Wagtail 7.4 LTS. Restam dois bloqueadores
+   antes de expor o portal à internet: o Nginx serve `/media/` como alias
+   direto e contorna a checagem de permissão de documentos do Wagtail, e o
+   upload de SVG está habilitado, que o Wagtail não sanitiza. Mais quatro
+   itens moderados no mesmo arquivo
 
 ## Alimentação do Portal — estratégia de duas fontes
 
@@ -567,6 +568,11 @@ decisão:
   em vez de uma aba própria
 - A branch `develop` prevista neste documento não existe; o fluxo real tem sido
   feature branch ou commit direto na `main`
+- `DocumentoPage` tem URL pública mas não existe `institucional/documento_page.html`:
+  toda página de documento publicada responde 500. Defeito anterior ao upgrade de
+  11/09/2026, descoberto ao renderizar as páginas de verdade. Duas saídas — criar o
+  template, ou tirar a página da navegação redirecionando para o arquivo. Marcado com
+  `xfail` estrito em `tests/test_templates.py`, que acusa quando for resolvido
 
 ---
 

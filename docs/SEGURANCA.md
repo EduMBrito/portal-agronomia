@@ -5,29 +5,34 @@ Auditoria do código feita em **11 de setembro de 2026**, antes de expor o porta
 `docker-compose.prod.yml`, views, templates e `wagtail_hooks.py`.
 
 A lista está ordenada por risco. Os itens 1 a 3 são bloqueadores: não subir o
-portal para a internet com eles abertos.
+portal para a internet com qualquer um deles em aberto.
 
-**Status:** nenhum item resolvido até agora.
+**Status:** item 1 resolvido em 11/09/2026 (PR #3). Restam os itens 2 e 3, que
+são bloqueadores, e os quatro moderados.
 
 ---
 
-## 1. Django e Wagtail estão fora de suporte  🔴 bloqueador
+## 1. Django e Wagtail estão fora de suporte  ✅ resolvido em 11/09/2026
 
-| Pinado hoje | Situação | Fim do suporte |
+Resolvido no PR #3. Ficou como `Django==5.2.*` (LTS, suporte até abril/2028) e
+`wagtail==7.4.*` (LTS, até novembro/2027). Nenhuma migração nova foi necessária
+nos models do projeto e a suíte não deixou aviso de deprecação.
+
+O registro do problema fica abaixo, porque a data de fim de suporte do novo par
+é o gatilho da próxima atualização.
+
+| Pinado antes | Situação | Fim do suporte |
 |---|---|---|
 | `Django==5.1.*` → 5.1.15 | **EOL** | 03/12/2025 |
 | `wagtail==6.3.*` → 6.3.8 | **EOL** | 01/05/2026 |
 
 Verificado em 11/09/2026 em `djangoproject.com/download/` e no wiki de release
-schedule do Wagtail. Qualquer CVE publicado depois dessas datas não tem correção
-para as versões que estamos rodando. É o maior risco da lista, e nenhum
-hardening de Nginx compensa.
+schedule do Wagtail. Qualquer CVE publicado depois dessas datas não tinha
+correção para as versões que estavam pinadas — era o maior risco da lista, e
+nenhum hardening de Nginx compensaria.
 
-**Alvo:** Django 5.2 LTS (suporte até abril/2028) + Wagtail 7.4 LTS (até
-novembro/2027). LTS com LTS é o par que dá o maior intervalo sem mexer de novo.
-
-O salto de Wagtail 6.3 → 7.4 atravessa quatro releases. É trabalho real, mas
-sai muito mais barato agora do que depois da carga de conteúdo real.
+**Próxima revisão:** conferir as datas de fim de suporte antes de
+novembro/2027, que é quando o Wagtail 7.4 LTS encerra — é o mais curto dos dois.
 
 ## 2. `/media/` servido como alias direto pelo Nginx  🔴 bloqueador
 
