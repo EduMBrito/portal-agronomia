@@ -71,6 +71,21 @@ teste travando o valor.
 Verificado com o Nginx rodando: imagem 200, `/media/documents/ata.pdf` 404,
 XML solto em `/media/` 404, e `/media/images/../documents/ata.pdf` 404.
 
+> **Adendo de 12/09/2026 — o `X-Accel-Redirect` não afrouxou nada.** Ao mudar o
+> desenho para o servidor compartilhado, a entrega dos documentos passou a ser
+> do Nginx: o Wagtail checa a coleção e responde vazio com `X-Accel-Redirect`.
+> A checagem continua sendo dele, e o destino é um `location internal`, que o
+> Nginx recusa servir a quem pede de fora.
+>
+> Reverificado na pilha completa: documento público 200 com bytes íntegros,
+> documento em coleção restrita 302 para o login, `/media/documents/` 404,
+> `/_protegido/...` pedido de fora 404, e id certo com nome de arquivo errado
+> 404 — o Wagtail recusa URL cujo nome não bate com o documento.
+>
+> **A regra que não pode se perder é a mesma, agora com um item a mais:**
+> `/media/` não volta a ser alias único, e o `location /_protegido/` não perde o
+> `internal`.
+
 ## 3. Upload de SVG habilitado  ✅ resolvido em 11/09/2026
 
 `WAGTAILIMAGES_EXTENSIONS` inclui `"svg"` em `config/settings/base.py`.
@@ -126,7 +141,9 @@ compilador disponível.
 
 As ferramentas de compilação saíram junto: `psycopg2-binary` e `Pillow` são
 wheels manylinux e nada era construído ali. A imagem caiu de 1,18 GB para
-871 MB e não tem mais compilador. Verificado no container: `uid=1000(portal)`,
+871 MB e não tem mais compilador. *(Em 12/09 caiu de novo, para 469 MB: o
+`.bin/` com os binários do Tailwind, ~110 MB cada, entrava na imagem porque
+estava só no `.gitignore` e não no `.dockerignore`.)* Verificado no container: `uid=1000(portal)`,
 Pillow grava JPEG, `psycopg2` importa.
 
 O `CMD` padrão deixou de ser o `runserver` e virou Gunicorn — se alguém subir a
@@ -168,7 +185,9 @@ Registrado para não se mexer nisso por engano em uma revisão futura:
 Conferir no servidor, na hora do deploy:
 
 - Permissão e dono do `.env` (`chmod 600`, dono do serviço)
-- **Restore testado.** A rotina de `pg_dump` está na seção 10 do `DEPLOY.md`,
-  mas backup que nunca foi restaurado é hipótese, não backup
+- **Restore testado.** Desde 12/09 o backup é da infraestrutura — rotina
+  centralizada no `pve-db` mais o PBS, e o `pg_dump` do portal saiu do
+  `DEPLOY.md`. O que não mudou: backup que nunca foi restaurado é hipótese, não
+  backup
 - Trocar o hostname do Site em `/admin/sites/` — pendência já registrada no
   `CLAUDE.md`

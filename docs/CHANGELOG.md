@@ -7,6 +7,67 @@ Seções: Added, Changed, Fixed, Removed
 
 ## [Unreleased]
 
+### Changed — desenho de deploy para o servidor compartilhado (12/09/2026)
+
+Reescrita do caminho de produção depois do retorno do projeto de infraestrutura
+do campus. O portal deixa de presumir servidor próprio e passa a conviver com
+outras aplicações no `pve-apps`, atrás do Caddy do `pve-proxy` e contra o
+PostgreSQL compartilhado do `pve-db`.
+
+- **O Nginx passa a viver dentro do stack**, como serviço do Compose, em vez de
+  ser instalado no host. O `Dockerfile` virou multi-estágio: `app` e `nginx`. A
+  aplicação não publica mais porta nenhuma — quem conversa com o proxy é o
+  Nginx, na `172.16.172.11:8001`
+- **O `collectstatic` saiu do deploy** e foi para o build da imagem. O manifesto
+  do `ManifestStaticFilesStorage` vai assado junto, e a ordem de operações que
+  derrubava todas as páginas com `Missing staticfiles manifest entry` deixou de
+  existir como risco
+- **As imagens vêm do GHCR**, construídas pela CI a cada push na `main` e a cada
+  tag `vX.Y.Z`. O `docker-compose.prod.yml` não tem mais `build:`: construir no
+  servidor roubaria CPU e disco das outras aplicações do campus. `PORTAL_TAG` no
+  `.env` escolhe a versão, e a etiqueta de sha curto nunca é reescrita — rollback
+  é trocar uma linha
+- **O Postgres próprio saiu do `docker-compose.prod.yml`.** O banco é o
+  compartilhado em `172.16.172.12`
+- **Documentos são entregues pelo Nginx, via `X-Accel-Redirect`.** O Wagtail
+  continua checando a permissão de coleção e passa a responder vazio com o
+  cabeçalho; o arquivo sai do Nginx, sem passar byte a byte pelo Python.
+  Implementação própria em `apps/core/sendfile_nginx.py`, ~20 linhas, em vez de
+  somar o `django-sendfile2` às dependências
+- **`X-Forwarded-Proto` deixa de ser `$scheme`.** O `nginx.conf` repassa o valor
+  que o Caddy mandou, com `map` e queda para `$scheme` quando o cabeçalho não
+  existe. Com `$scheme` o Django veria "http" atrás do proxy e entraria em laço
+  de redirecionamento
+- **`set_real_ip_from 172.16.172.10`** com `real_ip_recursive on`, para o limite
+  de tentativas de login enxergar o cliente e não o proxy
+- **Tetos de memória por contêiner**: `web` 1800 MB, `nginx` 128 MB. Num host
+  compartilhado é o que impede que um vazamento no portal derrube a VM das
+  outras aplicações. Medido em execução: 208–212 MB e 9,5–12,6 MB
+- **A rotina de `pg_dump` saiu do `DEPLOY.md`.** O backup passa a ser das duas
+  camadas da infraestrutura — rotina centralizada no `pve-db` e o PBS
+
+### Added
+
+- **Rota `/healthz/`** (`apps/core/views.py`), com healthcheck nos dois
+  contêineres. O do Nginx atravessa Nginx → Gunicorn → banco, que é o mesmo
+  caminho do `pve-proxy`; o do `web` fica como diagnóstico. Isenta do
+  `SECURE_SSL_REDIRECT`, senão receberia 301
+- **Job `imagem` na CI**, construindo e publicando as duas imagens no GHCR
+  depois que Ruff, CSS e testes passam
+- `apps/core/sendfile_nginx.py` e 7 testes novos — 4 do backend de X-Accel
+  (inclusive recusar caminho fora de `SENDFILE_ROOT`) e 3 do `/healthz/`
+
+### Fixed
+
+- **A imagem caiu de 889 MB para 469 MB.** O `.bin/`, com os binários do
+  compilador Tailwind (~110 MB por arquitetura), entrava na imagem porque estava
+  só no `.gitignore` e não no `.dockerignore`. A produção nunca precisou dele: o
+  `static/css/tailwind.css` vai pronto e versionado
+- **`SESSION_COOKIE_SECURE` e `CSRF_COOKIE_SECURE` viraram configuráveis**, com
+  default `True`. Estavam fixos, o que tornaria impossível validar o painel em
+  HTTP interno antes do certificado: o cookie de CSRF não é setado e o login
+  falha com "CSRF verification failed"
+
 ### Security
 
 Fecha os seis itens restantes do `docs/SEGURANCA.md` — o item 1, das versões EOL, saiu no
