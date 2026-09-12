@@ -3,6 +3,49 @@ import pytest
 from apps.pessoas.models import DocentePage
 
 # ---------------------------------------------------------------------------
+# View: healthz
+# ---------------------------------------------------------------------------
+#
+# É o que o healthcheck do container consulta. Se a rota sumir ou mudar de
+# caminho, o Compose passa a considerar o serviço eterna e silenciosamente
+# insalubre, e o Nginx nunca sobe — ele espera `service_healthy`.
+
+@pytest.mark.django_db
+def test_healthz_responde_200_com_banco_de_pe(client):
+    resposta = client.get("/healthz/")
+
+    assert resposta.status_code == 200
+    assert resposta.content == b"ok\n"
+
+
+@pytest.mark.django_db
+def test_healthz_nao_vaza_informacao(client):
+    """A rota é pública: não pode devolver versão, configuração nem erro do banco."""
+    corpo = client.get("/healthz/").content.decode().lower()
+
+    assert "django" not in corpo
+    assert "wagtail" not in corpo
+    assert "postgres" not in corpo
+
+
+@pytest.mark.django_db
+def test_healthz_responde_503_quando_o_banco_nao_responde(client, monkeypatch):
+    """O PostgreSQL vive noutra instância — a rede entre as duas pode cair sozinha."""
+    from django.db import OperationalError
+
+    from apps.core import views
+
+    def recusa():
+        raise OperationalError("conexão recusada")
+
+    monkeypatch.setattr(views.connection, "ensure_connection", recusa)
+
+    resposta = client.get("/healthz/")
+
+    assert resposta.status_code == 503
+
+
+# ---------------------------------------------------------------------------
 # View: busca
 # ---------------------------------------------------------------------------
 

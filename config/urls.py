@@ -5,9 +5,12 @@ from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
-from apps.core.views import busca, sobre
+from apps.core.views import busca, healthz, sobre
 
 urlpatterns = [
+    # Antes de tudo: é a rota que o healthcheck do container consulta, e ela
+    # não pode depender da árvore de páginas do Wagtail estar montada.
+    path("healthz/", healthz, name="healthz"),
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
     path("busca/", busca, name="busca"),
