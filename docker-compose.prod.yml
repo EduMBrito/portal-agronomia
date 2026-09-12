@@ -1,24 +1,19 @@
+# Produção: o banco NÃO está aqui. O portal usa o PostgreSQL compartilhado do
+# campus, em pve-db (172.16.172.12:5432), com database e usuário dedicados.
+# Ver docs/INFRAESTRUTURA.md, seção 5.
+#
+# As imagens vêm prontas do GHCR, construídas pela CI — não há `build:` aqui de
+# propósito. O Xeon de 2010 é compartilhado com as outras aplicações do campus,
+# e construir nele roubaria CPU e disco de todas elas durante o deploy.
+#
+# PORTAL_TAG no .env escolhe a versão. Rollback é trocar essa linha e repetir
+# `docker compose pull && docker compose up -d`; a etiqueta de sha curto nunca
+# é reescrita, ao contrário de `latest` e `main`.
+
 services:
 
-  db:
-    image: postgres:16-alpine
-    container_name: portal_agronomia_db
-    restart: always
-    env_file: .env
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   web:
-    build: .
+    image: ghcr.io/edumbrito/portal-agronomia-web:${PORTAL_TAG:-latest}
     container_name: portal_agronomia_web
     restart: always
     command: >
@@ -32,15 +27,71 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.production
     volumes:
-      # Bind mounts — Nginx serve esses diretórios diretamente do host.
-      # Não montar o código-fonte aqui: produção usa a imagem buildada.
-      - ./staticfiles:/app/staticfiles
+      # Único bind mount: os uploads da comissão, que são o dado que não está
+      # no git nem no banco. O ./staticfiles saiu de propósito — os estáticos
+      # agora são assados na imagem, e um bind mount aqui sombrearia o
+      # diretório com o vazio do host.
       - ./media:/app/media
+    # Sem `ports`: quem fala com o mundo é o Nginx, pela rede do Compose.
+    expose:
+      - "8000"
+
+    # Teto, não consumo esperado: o medido em repouso é ~203 MB e ~214 MB
+    # depois de 200 requisições. A folga cobre o processamento de imagem do
+    # Wagtail, que carrega o arquivo em memória ao gerar as renditions, e um
+    # eventual quarto worker. Sem limite, um vazamento aqui derruba a VM
+    # inteira, que é compartilhada com as outras aplicações do campus.
+    mem_limit: 1800m
+
+    # Chama `localhost` em vez de forjar um cabeçalho Host: a URL já produz o
+    # Host certo. Em troca, `localhost` precisa estar em ALLOWED_HOSTS — o que
+    # não abre nada, porque só vale para requisição de dentro do container.
+    # A rota está isenta do SECURE_SSL_REDIRECT, senão viria 301 aqui.
+    #
+    # Este healthcheck é o de diagnóstico: diz se o Gunicorn e o banco estão de
+    # pé. Quem responde pela saúde do site é o do Nginx, abaixo.
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - |
+          import urllib.request as u
+          r = u.urlopen("http://localhost:8000/healthz/", timeout=5)
+          raise SystemExit(0 if r.status == 200 else 1)
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  nginx:
+    image: ghcr.io/edumbrito/portal-agronomia-nginx:${PORTAL_TAG:-latest}
+    container_name: portal_agronomia_nginx
+    restart: always
+    volumes:
+      # Só leitura: quem escreve em media/ é o Gunicorn, pelo upload do Wagtail.
+      - ./media:/app/media:ro
     ports:
-      - "127.0.0.1:8000:8000"   # exposto apenas no loopback — Nginx faz o proxy
+      # Publicado no IP do pve-apps, não em 0.0.0.0. O Caddy do pve-proxy
+      # (172.16.172.10) encaminha para cá, e a faixa 8000-8099 já está
+      # liberada no UFW.
+      - "172.16.172.11:8001:80"
     depends_on:
-      db:
+      web:
         condition: service_healthy
 
-volumes:
-  postgres_data:
+    # O Nginx serve arquivo por sendfile, sem copiar para memória. 128 MB é
+    # folgado; o que ocupa espaço aqui são os buffers de proxy.
+    mem_limit: 128m
+
+    # Este é o healthcheck que importa: atravessa Nginx -> Gunicorn -> banco,
+    # que é o mesmo caminho do pve-proxy. Um healthcheck só no Gunicorn diria
+    # "saudável" com o Nginx morto e o site fora do ar.
+    #
+    # A imagem oficial já traz curl — não foi preciso instalar nada.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost/healthz/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

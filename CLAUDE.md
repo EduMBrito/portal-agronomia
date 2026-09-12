@@ -460,16 +460,37 @@ Carga inicial de conteudo com os professores
 
 O que já está pronto: os 7 módulos com models, templates e listagens filtráveis;
 busca textual; painel admin com branding e dashboard; árvore de páginas criada
-por `bootstrap_site`; Tailwind e HTMX servidos localmente (sem CDN); 59 testes;
+por `bootstrap_site`; Tailwind e HTMX servidos localmente (sem CDN); 141 testes;
 Ruff; e CI no GitHub Actions.
+
+**O caminho de produção foi reescrito em 12/09/2026** para o servidor
+compartilhado do campus, depois do retorno do projeto de infraestrutura. Em
+resumo — o detalhe está em `docs/INFRAESTRUTURA.md` e `docs/DEPLOY.md`:
+
+- **Duas imagens, construídas pela CI e publicadas no GHCR.** O
+  `docker-compose.prod.yml` não tem `build:`: o `pve-apps` hospeda outras
+  aplicações, e construir ali rouba CPU e disco de todas elas. `PORTAL_TAG` no
+  `.env` escolhe a versão; rollback é trocar essa linha
+- **O Nginx vive dentro do stack**, não no host. A aplicação não publica porta;
+  quem conversa com o Caddy do `pve-proxy` é o Nginx, em `172.16.172.11:8001`
+- **O banco é o PostgreSQL compartilhado** do `pve-db`, em `172.16.172.12`
+- **`collectstatic` roda no build**, não no deploy. A ordem de operações deixou
+  de ser um risco
+- **Documentos são entregues pelo Nginx por `X-Accel-Redirect`**, com a
+  permissão de coleção ainda checada pelo Wagtail
+- **Tetos de memória por contêiner** — obrigatórios num host compartilhado
+- **Rota `/healthz/`**, com healthcheck nos dois contêineres
 
 O que falta:
 
 1. **Ferramentas de carga para a comissão** — importador de Lattes e rotina de
    colheita por ORCID. Ver seção abaixo. É a prioridade
-2. **Deploy no servidor do campus** — seguir `docs/DEPLOY.md`. Pendências
-   próprias do deploy: trocar o hostname do Site em `/admin/sites/`, certificado
-   SSL e a carga de conteúdo real
+2. **Deploy no servidor do campus** — seguir `docs/DEPLOY.md`. O bloqueio é o
+   **subdomínio**, pendente com a TI: sem ele não se fecha `ALLOWED_HOSTS` nem
+   `WAGTAILADMIN_BASE_URL`. Dá para validar internamente pelo IP, mas nenhum
+   conteúdo real deve entrar antes — toda URL absoluta gerada nessa fase nasce
+   apontando para um endereço que morre depois. Pendências menores: trocar o
+   hostname do Site em `/admin/sites/` e o certificado
 
 3. **Segurança — ver `docs/SEGURANCA.md`.** A auditoria de 11/09/2026 levantou
    sete itens e todos foram resolvidos no mesmo dia. Não há bloqueador
@@ -528,9 +549,11 @@ CrossRef — daí as duas fontes serem paralelas.
 
 ### Restrição de LGPD
 
-O XML do Lattes contém **CPF, e-mail e telefone**. Em produção o
-`docs/nginx.conf` serve `/media/` como alias direto, **sem autenticação** — um
-XML largado ali vira download público.
+O XML do Lattes contém **CPF, e-mail e telefone**. Desde 11/09/2026 o
+`docs/nginx.conf` devolve 404 para tudo em `/media/` que não seja imagem, então
+um XML largado ali não é mais baixável pela web. Isso não autoriza deixá-lo lá:
+a proteção é uma linha de configuração, e o dado continua no disco do
+servidor.
 
 O XML é insumo de processamento, não conteúdo do portal: deve ser lido de um
 diretório fora da raiz web e descartado depois. Nenhum dado pessoal sensível
@@ -567,13 +590,11 @@ decisão:
   em vez de uma aba própria
 - A branch `develop` prevista neste documento não existe; o fluxo real tem sido
   feature branch ou commit direto na `main`
-- `DocumentoPage` tem URL pública mas não existe `institucional/documento_page.html`:
-  toda página de documento publicada responde 500. Defeito anterior ao upgrade de
-  11/09/2026, descoberto ao renderizar as páginas de verdade. Duas saídas — criar o
-  template, ou tirar a página da navegação redirecionando para o arquivo. Marcado com
-  `xfail` estrito em `tests/test_templates.py`, que acusa quando for resolvido
+- ~~`DocumentoPage` responde 500 por falta de template~~ — **resolvido**: a
+  página passou a redirecionar para o arquivo, no PR #5. Três testes em
+  `tests/test_templates.py` cobrem o redirecionamento
 
 ---
 
-**Última atualização:** 31 de julho de 2026
-**Versão:** 3.1
+**Última atualização:** 12 de setembro de 2026
+**Versão:** 3.2

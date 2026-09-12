@@ -6,14 +6,27 @@ DEBUG = False
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=lambda v: [s.strip() for s in v.split(",")])
 
 # --- Proxy ---
-# Nginx termina o SSL e repassa X-Forwarded-Proto; sem isso SECURE_SSL_REDIRECT
-# entraria em loop infinito tentando redirecionar para HTTPS eternamente.
+# Quem termina o TLS é o Caddy do pve-proxy; o Nginx do portal repassa adiante
+# o X-Forwarded-Proto que recebeu dele. Sem esse cabeçalho o Django não sabe
+# que a conexão original era HTTPS e o SECURE_SSL_REDIRECT abaixo entra em laço
+# infinito de redirecionamento. Ver docs/INFRAESTRUTURA.md, seção 3.2.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # --- HTTPS / cookies ---
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+
+# O default dos dois é True, e é assim que têm de ficar em produção com TLS.
+# São configuráveis por causa da validação interna, antes de o certificado
+# existir: em HTTP puro o navegador não guarda cookie marcado Secure, o de CSRF
+# nunca chega a ser setado, e o login do admin falha com "CSRF verification
+# failed" — o que faria parecer defeito do portal. Voltar os dois ao default
+# assim que o subdomínio tiver certificado.
+SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=True, cast=bool)
+CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=True, cast=bool)
+
+# O healthcheck do Docker fala HTTP no loopback; sem esta isenção ele receberia
+# o 301 do SECURE_SSL_REDIRECT e o container nunca ficaria saudável.
+SECURE_REDIRECT_EXEMPT = [r"^healthz/$"]
 
 # --- Headers de segurança ---
 SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -29,9 +42,19 @@ SECURE_HSTS_PRELOAD = True
 # Reusa conexões por até 60 s; evita abrir nova conexão a cada request.
 DATABASES["default"]["CONN_MAX_AGE"] = 60  # noqa: F821
 
+# --- Entrega de documentos ---
+# O Wagtail checa a permissão de coleção em /documents/<id>/<nome> e delega a
+# entrega ao Nginx por X-Accel-Redirect, em vez de copiar o arquivo pelo
+# Python. Ver apps/core/sendfile_nginx.py e o location /_protegido/ em
+# docs/nginx.conf — os valores abaixo e o location têm de casar.
+SENDFILE_BACKEND = "apps.core.sendfile_nginx"
+SENDFILE_ROOT = MEDIA_ROOT  # noqa: F405
+SENDFILE_URL = "/_protegido"
+
 # --- Arquivos estáticos ---
 # ManifestStaticFilesStorage adiciona hash ao nome dos arquivos (cache-busting).
-# Requer que `collectstatic` seja executado antes de subir o servidor.
+# O manifesto que ele lê na inicialização é gerado pelo `collectstatic` durante
+# o build da imagem, não no servidor — ver o estágio `app` do Dockerfile.
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",

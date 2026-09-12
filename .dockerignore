@@ -14,4 +14,14 @@ Thumbs.db
 node_modules
 .coverage
 htmlcov/
+.ruff_cache/
+
+# O compilador do Tailwind: ~110 MB por arquitetura, usado só pelo
+# scripts/build-css.sh e pela CI. O static/css/tailwind.css já vai pronto e
+# versionado, então a produção nunca precisa dele. Sem esta linha ele entrava
+# na imagem e respondia por um terço do tamanho dela.
+.bin/
 docs/
+# Exceção: o nginx.conf deixou de ser só documentação — o estágio `nginx`
+# do Dockerfile o copia para dentro da imagem. Regra posterior vence.
+!docs/nginx.conf

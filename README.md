@@ -154,6 +154,7 @@ portal-agronomia/
 | [API.md](docs/API.md) | URLs públicas, filtros, parâmetros de busca |
 | [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Git workflow, testes, lint e CI |
 | [SEGURANCA.md](docs/SEGURANCA.md) | Pendências de segurança antes do deploy |
+| [INFRAESTRUTURA.md](docs/INFRAESTRUTURA.md) | O que o portal precisa do servidor compartilhado do campus |
 | [CHANGELOG.md](docs/CHANGELOG.md) | Histórico de versões |
 
 ---

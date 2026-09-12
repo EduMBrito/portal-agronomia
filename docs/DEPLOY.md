@@ -1,263 +1,272 @@
 # DEPLOY.md — Portal Agronomia IFSertãoPE
 
-## Pré-requisitos do Servidor
+Instalação e atualização no servidor compartilhado do campus.
 
-- Ubuntu Server 22.04 LTS
-- Docker Engine 24+ e Docker Compose v2
-- Git
-- Nginx (instalado no host, fora do Docker)
-- Certificado SSL (Let's Encrypt ou institucional)
-- Porta 80 e 443 abertas no firewall
-- Mínimo 1 GB RAM, 10 GB disco
+O portal roda em `pve-apps` como duas imagens construídas pela CI: a aplicação
+(Gunicorn) e o Nginx que serve estáticos, imagens e documentos. O banco é o
+PostgreSQL compartilhado em `pve-db`, e quem termina o TLS é o Caddy do
+`pve-proxy`.
 
-## 1. Instalação do Docker
+O que cada instância precisa fornecer está em
+[`INFRAESTRUTURA.md`](INFRAESTRUTURA.md) — este arquivo é o passo a passo.
+
+> **Nada é construído no servidor.** O `pve-apps` hospeda outras aplicações do
+> campus; um `docker build` ali rouba CPU e disco de todas elas durante o
+> deploy, num Xeon de 2010 com disco mecânico. O caminho de emergência, para
+> quando o GHCR estiver inalcançável, está na seção 9.
+
+---
+
+## 1. Pré-requisitos
+
+Fornecido pela infraestrutura:
+
+| Item | Valor |
+|---|---|
+| Instância de aplicação | `pve-apps`, Ubuntu Server 22.04 LTS, Docker Engine 24+ e Compose v2 |
+| Banco | `pve-db` — `172.16.172.12:5432`, database e usuário `portal_agronomia` |
+| Proxy | Caddy em `pve-proxy` (`172.16.172.10`), encaminhando para `172.16.172.11:8001` |
+| Saída para a internet | necessária no `pve-apps`, para alcançar `ghcr.io` |
+
+Do nosso lado, só o que está neste repositório.
+
+---
+
+## 2. Preparar o diretório no servidor
+
+O clone serve **apenas** para ter o `docker-compose.prod.yml` versionado. Nada
+é construído a partir dele.
 
 ```bash
-# Dependências
-sudo apt update && sudo apt install -y ca-certificates curl gnupg
-
-# Repositório oficial Docker
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
-  sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-  https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list
-
-sudo apt update && sudo apt install -y docker-ce docker-ce-cli docker-compose-plugin
-
-# Adicionar usuário ao grupo docker (evita sudo)
-sudo usermod -aG docker $USER
-newgrp docker
+sudo mkdir -p /opt/stacks
+sudo git clone https://github.com/EduMBrito/portal-agronomia.git \
+  /opt/stacks/portal-agronomia
+sudo chown -R $USER:$USER /opt/stacks/portal-agronomia
+cd /opt/stacks/portal-agronomia
 ```
 
-## 2. Clone e Configuração
+O diretório de mídia precisa pertencer ao **UID 1000**, que é o usuário
+`portal` dentro do container. Se não casar, o upload de imagem falha com
+permissão negada:
 
 ```bash
-cd /opt
-sudo git clone https://github.com/<org>/portal-agronomia.git
-sudo chown -R $USER:$USER portal-agronomia
-cd portal-agronomia
+mkdir -p media
+sudo chown -R 1000:1000 media
+id -u            # normalmente 1000 — se for, dá para usar rsync sem sudo
 ```
 
-## 3. Variáveis de Ambiente
+---
 
-Copie o exemplo e edite com valores reais:
+## 3. Variáveis de ambiente
 
 ```bash
 cp .env.example .env
+chmod 600 .env
 nano .env
 ```
 
-Valores obrigatórios em produção:
+O `.env.example` explica cada campo. Os que não têm default e travam a subida:
 
 ```env
-SECRET_KEY=<chave-longa-aleatória-mínimo-50-chars>
-DEBUG=False
-ALLOWED_HOSTS=portal.agronomia.ifsertao.edu.br,www.portal.agronomia.ifsertao.edu.br
+SECRET_KEY=<50+ caracteres aleatórios>
+ALLOWED_HOSTS=<subdomínio>,localhost
+WAGTAILADMIN_BASE_URL=https://<subdomínio>
 DB_NAME=portal_agronomia
-DB_USER=postgres
-DB_PASSWORD=<senha-forte>
-DB_HOST=db
+DB_USER=portal_agronomia
+DB_PASSWORD=<no gerenciador de senhas>
+DB_HOST=172.16.172.12
 DB_PORT=5432
-WAGTAIL_SITE_NAME=Portal Agronomia IFSertãoPE
-WAGTAILADMIN_BASE_URL=https://portal.agronomia.ifsertao.edu.br
-DEFAULT_FROM_EMAIL=noreply@ifsertao.edu.br
-EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+PORTAL_TAG=latest
 ```
-
-Gere uma SECRET_KEY segura:
 
 ```bash
-python3 -c "import secrets; print(secrets.token_urlsafe(60))"
+python3 -c "import secrets; print(secrets.token_urlsafe(60))"   # SECRET_KEY
 ```
 
-## 4. Docker Compose para Produção
+> **`localhost` em `ALLOWED_HOSTS` não é opcional.** É o Host que o healthcheck
+> do container usa. Sem ele o Django responde 400, o serviço nunca fica
+> saudável e o Nginx não chega a subir — ele espera `service_healthy`.
 
-Crie `docker-compose.prod.yml`:
+---
 
-```yaml
-services:
-  db:
-    image: postgres:16-alpine
-    container_name: portal_agronomia_db
-    restart: always
-    env_file: .env
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+## 4. Primeira instalação
 
-  web:
-    build: .
-    container_name: portal_agronomia_web
-    restart: always
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
-    env_file: .env
-    environment:
-      DJANGO_SETTINGS_MODULE: config.settings.production
-    volumes:
-      - media_data:/app/media
-      - static_data:/app/staticfiles
-    ports:
-      - "127.0.0.1:8000:8000"   # apenas loopback — Nginx faz o proxy
-    depends_on:
-      db:
-        condition: service_healthy
-
-volumes:
-  postgres_data:
-  media_data:
-  static_data:
-```
-
-## 5. Build e Inicialização
+A ordem importa. O `collectstatic` **não** aparece aqui: os estáticos já vêm
+assados na imagem, gerados durante o build da CI.
 
 ```bash
-# Build da imagem
-docker compose -f docker-compose.prod.yml build
+cd /opt/stacks/portal-agronomia
 
-# Subir serviços em background
+docker compose -f docker-compose.prod.yml pull
+
+docker compose -f docker-compose.prod.yml run --rm web python manage.py migrate --noinput
+docker compose -f docker-compose.prod.yml run --rm web python manage.py bootstrap_site
+docker compose -f docker-compose.prod.yml run --rm web python manage.py setup_grupos
+
 docker compose -f docker-compose.prod.yml up -d
 
-# Aplicar migrações
-docker compose -f docker-compose.prod.yml exec web python manage.py migrate
-
-# Montar a árvore de páginas (HomePage + as 7 seções)
-docker compose -f docker-compose.prod.yml exec web python manage.py bootstrap_site
-
-# Coletar arquivos estáticos
-docker compose -f docker-compose.prod.yml exec web python manage.py collectstatic --noinput
-
-# Criar superusuário
 docker compose -f docker-compose.prod.yml exec web python manage.py createsuperuser
-
-# Configurar grupos e permissões
-docker compose -f docker-compose.prod.yml exec web python manage.py setup_grupos
 ```
 
-> **`bootstrap_site`:** obrigatório em uma instalação nova. Cria a HomePage, aponta
-> o Site do Wagtail para ela, remove a página padrão "Welcome to your new Wagtail
-> site!" e cria as sete seções com os slugs que o menu do topo espera. É
-> idempotente — reexecutar em um portal já povoado não altera nada.
+> **`bootstrap_site`** cria a HomePage, aponta o Site do Wagtail para ela,
+> remove a página "Welcome to your new Wagtail site!" e monta as sete seções com
+> os slugs que o menu do topo espera. **`setup_grupos`** cria os grupos de
+> permissão. Os dois são idempotentes: reexecutar num portal povoado não altera
+> nada.
 
 > **Não rode `populate_content` em produção.** Ele carrega docentes, projetos e
 > publicações fictícios, feitos para demonstração.
 
-> **Hostname do Site:** o `bootstrap_site` não mexe no hostname. Em
-> `/admin/sites/`, troque `localhost:80` pelo domínio real do campus — o Wagtail
-> usa esse valor para gerar URLs absolutas (e-mails de notificação, sitemap).
+> **Hostname do Site.** O `bootstrap_site` não mexe nisso. Em `/admin/sites/`,
+> troque `localhost:80` pelo subdomínio real — o Wagtail usa esse valor para
+> gerar URLs absolutas em e-mails de notificação e no sitemap.
 
-> **Tailwind:** nada a fazer no servidor. O CSS já vem compilado e versionado em
-> `static/css/tailwind.css`; o `collectstatic` acima o coleta junto com o resto.
-> O campus não precisa de Node, npm nem acesso a CDN para o portal renderizar.
-> Se alterar algum template, rode `./scripts/build-css.sh` na sua máquina e
-> commite o CSS regenerado **antes** de fazer o deploy.
+> **Tailwind: nada a fazer no servidor.** O CSS vai compilado e versionado em
+> `static/css/tailwind.css`, e a CI confere se está em dia com os templates. O
+> campus não precisa de Node, npm nem CDN. Se alterar um template, rode
+> `./scripts/build-css.sh` na sua máquina e commite o CSS regenerado.
 
-## 6. Nginx
-
-Instale o Nginx no host (não no Docker):
+Confirme que os dois containers ficaram saudáveis:
 
 ```bash
-sudo apt install -y nginx
-```
-
-O arquivo de configuração está versionado em [`nginx.conf`](nginx.conf) — é a
-fonte única, não copie o conteúdo para cá. Ele já traz o bloqueio de `/media/`
-para tudo que não seja imagem, o limite de tentativas na tela de login e o
-`ssl_protocols`.
-
-```bash
-sudo cp docs/nginx.conf /etc/nginx/sites-available/portal-agronomia
-sudo nano /etc/nginx/sites-available/portal-agronomia   # trocar server_name e caminhos
-```
-
-Três coisas precisam bater com o servidor antes de ativar:
-
-| No arquivo | Trocar por |
-|---|---|
-| `server_name portal.agronomia.ifsertao.edu.br` | o hostname real |
-| `/opt/portal-agronomia/` | o diretório onde o projeto foi clonado |
-| caminhos do `ssl_certificate` | onde o Certbot ou o CTI deixou o certificado |
-
-> **Não transformar `/media/` num alias único de novo.** Os documentos ficam em
-> `media/documents/` e a permissão de coleção é checada na rota `/documents/`
-> do Wagtail. Servir o diretório inteiro contorna essa checagem — era o
-> comportamento antigo e está registrado como item 2 do
-> [`SEGURANCA.md`](SEGURANCA.md).
-
-Ative e reinicie:
-
-```bash
-sudo ln -s /etc/nginx/sites-available/portal-agronomia /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-## 7. Certificado SSL (Let's Encrypt)
-
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d portal.agronomia.ifsertao.edu.br
-```
-
-O Certbot configura a renovação automática. Verifique:
-
-```bash
-sudo certbot renew --dry-run
-```
-
-## 8. Atualizações
-
-```bash
-cd /opt/portal-agronomia
-
-# Puxar novas versões
-git pull origin main
-
-# Rebuild e reiniciar
-docker compose -f docker-compose.prod.yml build web
-docker compose -f docker-compose.prod.yml up -d web
-
-# Aplicar migrações e coletar estáticos se houver mudanças
-docker compose -f docker-compose.prod.yml exec web python manage.py migrate
-docker compose -f docker-compose.prod.yml exec web python manage.py collectstatic --noinput
-```
-
-## 9. Monitoramento e Logs
-
-```bash
-# Logs em tempo real
-docker compose -f docker-compose.prod.yml logs -f web
-
-# Status dos containers
 docker compose -f docker-compose.prod.yml ps
-
-# Uso de recursos
-docker stats
 ```
 
-## 10. Backup Automatizado
+O healthcheck do Nginx atravessa Nginx → Gunicorn → banco. Se ele passa, o
+caminho que o `pve-proxy` usa está inteiro.
 
-Adicione ao crontab (`crontab -e`):
+---
 
-```cron
-# Backup diário às 2h
-0 2 * * * docker compose -f /opt/portal-agronomia/docker-compose.prod.yml exec -T db \
-  pg_dump -U postgres portal_agronomia | gzip > /opt/backups/portal_$(date +\%Y\%m\%d).sql.gz
+## 5. Validação interna, antes do subdomínio
 
-# Manter apenas últimos 30 dias
-0 3 * * * find /opt/backups -name "portal_*.sql.gz" -mtime +30 -delete
+Enquanto a TI não define o subdomínio e não há certificado, dá para validar o
+portal pelo IP. Três ajustes temporários no `.env`:
+
+```env
+ALLOWED_HOSTS=172.16.172.10,localhost
+WAGTAILADMIN_BASE_URL=http://172.16.172.10
+
+SECURE_SSL_REDIRECT=False
+SESSION_COOKIE_SECURE=False
+CSRF_COOKIE_SECURE=False
 ```
+
+Os três últimos têm default `True` e precisam voltar ao default assim que o
+certificado existir. Sem eles em `False`, duas coisas acontecem em HTTP puro: o
+Django responde 301 para `https://` e o Caddy devolve a requisição em HTTP,
+criando um laço; e o cookie de CSRF não é setado, então **o login do painel
+falha** com "CSRF verification failed".
+
+> **Não carregue conteúdo real nesta fase.** O `WAGTAILADMIN_BASE_URL` fica com
+> o IP, e toda URL absoluta gerada agora — e-mail de notificação, sitemap —
+> nasce apontando para um endereço que morre quando o domínio existir.
+
+---
+
+## 6. Atualizações
 
 ```bash
-sudo mkdir -p /opt/backups
+cd /opt/stacks/portal-agronomia
+git pull origin main          # só para o docker-compose.prod.yml
+
+# Fixe a versão no .env, ou deixe `latest` para a última tag vX.Y.Z publicada
+nano .env                     # PORTAL_TAG=v0.5.0
+
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml run --rm web python manage.py migrate --noinput
+docker compose -f docker-compose.prod.yml up -d
 ```
+
+---
+
+## 7. Rollback
+
+Trocar `PORTAL_TAG` no `.env` e repetir `pull` + `up -d`. A etiqueta de sha
+curto que a CI publica nunca é reescrita, ao contrário de `latest` e `main`:
+
+```env
+PORTAL_TAG=235fb52abc12
+```
+
+> **Rollback de imagem não desfaz migração.** Se a versão que você está
+> abandonando aplicou uma migração destrutiva, voltar a imagem deixa o código
+> velho contra um banco novo. Nesse caso o caminho é restaurar o banco do
+> backup, não só trocar a etiqueta. Vale conferir o que a migração fez antes de
+> decidir.
+
+---
+
+## 8. Logs e diagnóstico
+
+```bash
+docker compose -f docker-compose.prod.yml logs -f web      # Gunicorn e Django
+docker compose -f docker-compose.prod.yml logs -f nginx    # acessos e erros
+docker compose -f docker-compose.prod.yml ps               # saúde dos dois
+docker stats portal_agronomia_web portal_agronomia_nginx   # memória contra o teto
+```
+
+Nenhum log é escrito em disco pela aplicação: tudo vai para stdout e stderr, e o
+Docker captura.
+
+**Conferir o IP real do cliente.** No primeiro acesso vindo do `pve-proxy`, veja
+o que o Nginx registrou:
+
+```bash
+docker compose -f docker-compose.prod.yml logs nginx | tail
+```
+
+Se aparecer um `172.x` que não seja `172.16.172.10`, é o gateway da rede bridge
+do Docker, e ele precisa entrar numa segunda linha `set_real_ip_from` em
+[`nginx.conf`](nginx.conf) — senão o limite de tentativas de login passa a valer
+para a internet inteira somada, num balde só.
+
+---
+
+## 9. Emergência — sem GHCR
+
+Se o registry estiver inalcançável e for preciso subir mesmo assim, dá para
+construir no servidor com os nomes que o Compose espera. **É exceção**, não
+procedimento: gasta CPU e disco compartilhados com as outras aplicações.
+
+```bash
+docker build --target app   -t ghcr.io/edumbrito/portal-agronomia-web:emergencia .
+docker build --target nginx -t ghcr.io/edumbrito/portal-agronomia-nginx:emergencia .
+# PORTAL_TAG=emergencia no .env, depois up -d
+```
+
+Isso exige o código-fonte completo no servidor — o clone da seção 2 já serve.
+Depois, `docker builder prune` para não deixar o cache de build ocupando disco.
+
+---
+
+## 10. Backup
+
+**A rotina de `pg_dump` própria do portal foi retirada.** O backup é
+responsabilidade da infraestrutura, em duas camadas: a rotina centralizada no
+`pve-db`, que varre todos os databases, e o Proxmox Backup Server cobrindo as
+instâncias. Manter uma terceira rotina aqui criaria a pior situação possível —
+achar que existe backup em dois lugares e não haver em nenhum.
+
+Duas coisas precisam estar cobertas, e só elas:
+
+| Item | Onde |
+|---|---|
+| Database `portal_agronomia` | `pve-db` |
+| Volume `media/` | `pve-apps`, em `/opt/stacks/portal-agronomia/media` |
+
+O que **não** precisa: as imagens (reconstruíveis pela CI), o `staticfiles/`
+(vai dentro da imagem) e o código (está no GitHub).
+
+### A janela entre os dois
+
+O banco guarda a referência ao documento, não o arquivo. Restaurar só o banco
+deixa o portal num estado ruim e silencioso: as páginas carregam e cada link de
+documento dá erro ao baixar.
+
+Combinado com a infraestrutura: o dump do `pve-db` e o job do PBS rodam com
+pouca distância entre si, e **uma defasagem de até uma hora é aceitável** —
+desde que esteja escrita, que é o propósito deste parágrafo.
+
+> **Pendência nossa, não da infra:** nunca fizemos um restore de teste. Backup
+> que não foi restaurado é hipótese. Está registrado no
+> [`SEGURANCA.md`](SEGURANCA.md).

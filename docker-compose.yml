@@ -19,7 +19,9 @@ services:
       retries: 5
 
   web:
-    build: .
+    build:
+      context: .
+      target: app   # o Dockerfile tem dois estágios; o último é o do Nginx
     container_name: portal_agronomia_web
     restart: unless-stopped
     command: python manage.py runserver 0.0.0.0:8000
