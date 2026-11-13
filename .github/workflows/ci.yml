@@ -3,6 +3,11 @@ name: CI
 on:
   push:
     branches: [main, develop]
+    # Sem esta linha, push de tag não dispara o workflow: quando o filtro de
+    # push define só `branches`, o GitHub ignora as tags. O job `imagem` checa
+    # refs/tags/v*, mas nunca chegava a rodar — `v0.5.0` não teria sido
+    # publicada no GHCR.
+    tags: ["v*.*.*"]
   pull_request:
 
 # Cancela execuções antigas do mesmo branch quando chega um push novo.

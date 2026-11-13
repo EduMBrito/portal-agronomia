@@ -204,7 +204,7 @@ No servidor:
 
 ```bash
 cd /opt/stacks/portal-agronomia
-nano .env                     # PORTAL_TAG=<nova etiqueta>
+nano .env                     # PORTAL_TAG=vX.Y.Z — ver "Releases" no CONTRIBUTING.md
 
 docker compose pull
 docker compose run --rm web python manage.py migrate --noinput

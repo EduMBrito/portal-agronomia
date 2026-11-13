@@ -119,6 +119,36 @@ refactor: extrair lógica de paginação para mixin reutilizável
 4. Descreva o que mudou e por quê
 5. Aguarde revisão antes de fazer merge
 
+### Releases
+
+Desde a `v0.5.0` o deploy é feito por tag. O servidor roda o que estiver em
+`PORTAL_TAG` no `.env`, e uma tag `vX.Y.Z` é o que ele deve receber — o sha
+curto fica para rollback e emergência.
+
+Versionamento semântico: `fix` sobe o patch (`v0.5.1`), `feat` sobe o minor
+(`v0.6.0`). Enquanto o projeto estiver em `0.x`, mudança incompatível também
+sobe o minor.
+
+1. Numa branch `docs/release-vX.Y.Z`, transforme o `## [Unreleased]` do
+   [`CHANGELOG.md`](CHANGELOG.md) em `## [X.Y.Z] - AAAA-MM-DD`, com um parágrafo
+   de resumo, e deixe um `## [Unreleased]` vazio acima. PR e merge
+2. Na `main` atualizada, crie e envie a tag anotada:
+
+   ```bash
+   git switch main && git pull --ff-only
+   git tag -a vX.Y.Z -m "vX.Y.Z"
+   git push origin vX.Y.Z
+   ```
+
+3. A CI roda de novo sobre a tag e publica as imagens com três etiquetas: o sha
+   curto, `vX.Y.Z` e `latest`. Confira em Actions que o job "Imagens no GHCR"
+   passou **antes** de mexer no servidor
+4. No servidor, `PORTAL_TAG=vX.Y.Z` no `.env` e a sequência de atualização do
+   [`DEPLOY.md`](DEPLOY.md), seção 5
+
+Tag publicada não se move nem se reaproveita. Se a release saiu com defeito, a
+correção vira a próxima versão de patch.
+
 ## Rodando os Testes
 
 ```bash
@@ -190,14 +220,16 @@ automático rende mais quanto mais gente mexe no código.
 
 ## Integração Contínua
 
-`.github/workflows/ci.yml` roda a cada push em `main`/`develop` e em todo pull
-request. São três jobs paralelos:
+`.github/workflows/ci.yml` roda a cada push em `main`/`develop`, a cada tag
+`vX.Y.Z` e em todo pull request. Três jobs paralelos de verificação, e um
+quarto que só roda depois deles:
 
 | Job | O que faz |
 |---|---|
 | **Ruff** | `ruff check .` |
 | **CSS em dia** | recompila o Tailwind e falha se `static/css/tailwind.css` estiver diferente do commitado |
 | **Testes** | sobe um PostgreSQL 16, confere migrações pendentes e roda o pytest com cobertura |
+| **Imagens no GHCR** | só em push na `main` ou tag `vX.Y.Z`: constrói e publica `portal-agronomia-web` e `portal-agronomia-nginx` para linux/amd64. Na `main`, etiquetas sha curto e `main`; na tag, sha curto, `vX.Y.Z` e `latest` |
 
 O job de CSS existe por causa de uma escolha do projeto: o CSS compilado é
 versionado. Sem essa checagem, alguém mexeria num template, esqueceria de rodar
