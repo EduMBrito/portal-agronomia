@@ -6,6 +6,12 @@
   <title>{% block title %}Portal Agronomia{% endblock %} | IFSertãoPE</title>
   <meta name="description" content="{% block meta_description %}Portal do Curso de Agronomia — IFSertãoPE, Campus Petrolina Zona Rural{% endblock %}">
 
+  <!-- Símbolo do IFSertãoPE, recortado de assets/marca/Marca_CPZR.png. Os dois
+       arquivos também são servidos na raiz pelo Nginx (docs/nginx.conf), que é
+       onde navegador e robô pedem quando não leem esta tag. -->
+  <link rel="icon" href="{% static 'favicon.ico' %}" sizes="16x16 32x32 48x48">
+  <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}">
+
   <!-- Tailwind compilado localmente. A paleta institucional agora fica em
        assets/css/input.css; recompile com ./scripts/build-css.sh -->
   <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
