@@ -7,6 +7,27 @@ Seções: Added, Changed, Fixed, Removed
 
 ## [Unreleased]
 
+---
+
+## [0.5.0] - 2026-11-13
+
+Primeira versão em produção, em
+`https://portalagronomia.zonarural.ifsertao-pe.edu.br`. Reúne o upgrade para
+Django 5.2 e Wagtail 7.4 LTS, a auditoria de segurança de 11/09/2026 com os sete
+itens fechados, o desenho de deploy para o servidor compartilhado do campus
+(imagens no GHCR, Nginx dentro do stack, PostgreSQL do `pve-db`) e os ajustes
+que o primeiro deploy mostrou.
+
+A partir desta versão o deploy é feito por tag: `PORTAL_TAG=v0.5.0` no `.env`.
+
+### Fixed — CI não publicava imagem em tag (13/11/2026)
+
+- **Push de tag `vX.Y.Z` passa a disparar a CI.** O gatilho filtrava só
+  `branches`, e nesse caso o GitHub ignora as tags: o job de imagens checava
+  `refs/tags/v*`, mas nunca rodava. Nenhuma etiqueta `vX.Y.Z` nem `latest`
+  chegou a ser publicada até aqui. Visto ao preparar esta release
+- Procedimento de release documentado no `CONTRIBUTING.md`
+
 ### Fixed — favicon e peso do logo do LADI (13/11/2026)
 
 Os dois itens vistos no log do Nginx no primeiro deploy.

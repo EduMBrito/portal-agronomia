@@ -457,6 +457,7 @@ Carga inicial de conteudo com os professores
 ## Estado do Projeto
 
 **Fases 1 a 5 concluídas** — release `v0.4.0` (31/07/2026).
+**Em produção** — release `v0.5.0` (13/11/2026), primeira com deploy por tag.
 
 O que já está pronto: os 7 módulos com models, templates e listagens filtráveis;
 busca textual; painel admin com branding e dashboard; árvore de páginas criada
