@@ -7,6 +7,24 @@ Seções: Added, Changed, Fixed, Removed
 
 ## [Unreleased]
 
+### Changed — primeiro deploy no campus (13/11/2026)
+
+O portal subiu em `https://portalagronomia.zonarural.ifsertao-pe.edu.br`. Os
+ajustes abaixo vieram do que o primeiro deploy mostrou.
+
+- **`PORTAL_TAG` passa a ser obrigatória** no `docker-compose.prod.yml`
+  (`${PORTAL_TAG:?...}`). O default `latest` falhava com "not found" quando a
+  variável faltava no `.env`, porque `latest` só existe depois de uma tag
+  `vX.Y.Z` — e a mensagem não dizia o que faltava
+- **`restart: unless-stopped`** no lugar de `always` nos dois serviços: um
+  `docker compose stop` deliberado sobrevive a um reinício do daemon
+- **`DEPLOY.md` reescrito para o fluxo real**: sem clone no servidor, Compose
+  copiado por `scp` como `docker-compose.yml`, comandos sem `-f`,
+  `createsuperuser` na sequência, porta 443 no Site do Wagtail, tabela de
+  sintomas e o build de emergência a partir de um checkout temporário
+- **`.env.example`**: os três ajustes de HTTPS deixam de ser descritos como
+  temporários, e `PORTAL_TAG` vem vazia, com o aviso de que é obrigatória
+
 ### Changed — desenho de deploy para o servidor compartilhado (12/09/2026)
 
 Reescrita do caminho de produção depois do retorno do projeto de infraestrutura

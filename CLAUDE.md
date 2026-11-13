@@ -485,12 +485,12 @@ O que falta:
 
 1. **Ferramentas de carga para a comissão** — importador de Lattes e rotina de
    colheita por ORCID. Ver seção abaixo. É a prioridade
-2. **Deploy no servidor do campus** — seguir `docs/DEPLOY.md`. O bloqueio é o
-   **subdomínio**, pendente com a TI: sem ele não se fecha `ALLOWED_HOSTS` nem
-   `WAGTAILADMIN_BASE_URL`. Dá para validar internamente pelo IP, mas nenhum
-   conteúdo real deve entrar antes — toda URL absoluta gerada nessa fase nasce
-   apontando para um endereço que morre depois. Pendências menores: trocar o
-   hostname do Site em `/admin/sites/` e o certificado
+2. ~~**Deploy no servidor do campus**~~ — **feito em 13/11/2026**, em
+   `https://portalagronomia.zonarural.ifsertao-pe.edu.br` (só DNS interno por
+   enquanto). Etiqueta `90b717d7a30a`, hostname do Site com porta 443, login no
+   painel e IP real do cliente conferidos. Falta o acesso externo, que é da TI,
+   e a carga de conteúdo real, que já pode entrar. Atualizações seguem
+   `docs/DEPLOY.md`
 
 3. **Segurança — ver `docs/SEGURANCA.md`.** A auditoria de 11/09/2026 levantou
    sete itens e todos foram resolvidos no mesmo dia. Não há bloqueador
@@ -594,7 +594,16 @@ decisão:
   página passou a redirecionar para o arquivo, no PR #5. Três testes em
   `tests/test_templates.py` cobrem o redirecionamento
 
+Backlog miúdo, visto no log do Nginx no primeiro deploy (13/11/2026):
+
+- **`/favicon.ico` responde 404.** Inofensivo, mas gera uma linha de erro por
+  visitante novo. Saída: `<link rel="icon">` no template base apontando para um
+  arquivo em `static/`, ou um `location = /favicon.ico` no `docs/nginx.conf`
+- **`static/images/logoLADI.png` tem 692 KB**, baixado na primeira visita de
+  todo mundo. Redimensionar para o tamanho em que é exibido ou converter para
+  WebP — deve cair para menos de 50 KB
+
 ---
 
-**Última atualização:** 12 de setembro de 2026
-**Versão:** 3.2
+**Última atualização:** 13 de novembro de 2026
+**Versão:** 3.3
