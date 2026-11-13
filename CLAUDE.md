@@ -599,9 +599,10 @@ Backlog miúdo, visto no log do Nginx no primeiro deploy (13/11/2026):
 - **`/favicon.ico` responde 404.** Inofensivo, mas gera uma linha de erro por
   visitante novo. Saída: `<link rel="icon">` no template base apontando para um
   arquivo em `static/`, ou um `location = /favicon.ico` no `docs/nginx.conf`
-- **`static/images/logoLADI.png` tem 692 KB**, baixado na primeira visita de
-  todo mundo. Redimensionar para o tamanho em que é exibido ou converter para
-  WebP — deve cair para menos de 50 KB
+- ~~**`static/images/logoLADI.png` tem 692 KB**~~ — **resolvido**: virou
+  `logoLADI.webp`, 704×384 e 26 KB, o dobro da maior altura em que é exibido
+  (`h-44` na página Sobre), para tela retina. O PNG original fica no histórico
+  do git. O favicon vai usar a marca oficial do IFSertãoPE e espera o arquivo
 
 ---
 

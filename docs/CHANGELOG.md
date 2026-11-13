@@ -7,6 +7,14 @@ Seções: Added, Changed, Fixed, Removed
 
 ## [Unreleased]
 
+### Fixed — peso do logo do LADI (13/11/2026)
+
+- **`logoLADI.png` (1408×768, 692 KB) trocado por `logoLADI.webp` (704×384,
+  26 KB).** Ele aparece no rodapé de todas as páginas, então era baixado na
+  primeira visita de todo mundo. O tamanho novo é o dobro da maior altura em
+  que o logo é exibido (176 px, na página Sobre), o que mantém a nitidez em tela
+  retina. Enquadramento e proporção são os mesmos: nada muda no visual
+
 ### Changed — primeiro deploy no campus (13/11/2026)
 
 O portal subiu em `https://portalagronomia.zonarural.ifsertao-pe.edu.br`. Os
