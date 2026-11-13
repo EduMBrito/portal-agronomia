@@ -189,5 +189,5 @@ Conferir no servidor, na hora do deploy:
   centralizada no `pve-db` mais o PBS, e o `pg_dump` do portal saiu do
   `DEPLOY.md`. O que não mudou: backup que nunca foi restaurado é hipótese, não
   backup
-- Trocar o hostname do Site em `/admin/sites/` — pendência já registrada no
-  `CLAUDE.md`
+- ~~Trocar o hostname do Site em `/admin/sites/`~~ — feito no primeiro deploy,
+  13/11/2026, com porta 443

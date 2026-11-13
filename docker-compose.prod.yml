@@ -9,13 +9,22 @@
 # PORTAL_TAG no .env escolhe a versão. Rollback é trocar essa linha e repetir
 # `docker compose pull && docker compose up -d`; a etiqueta de sha curto nunca
 # é reescrita, ao contrário de `latest` e `main`.
+#
+# PORTAL_TAG é obrigatória, sem default. Já houve `:-latest` aqui, e no primeiro
+# deploy (13/11/2026) a variável faltou no .env: o Compose tentou puxar
+# `latest`, que só existe depois de uma tag vX.Y.Z, e o pull falhou com um "not
+# found" que não dizia o que faltava. Com `:?` o Compose para antes, nomeando a
+# variável.
+#
+# No servidor este arquivo é copiado como docker-compose.yml, para que os
+# comandos rodem sem `-f`. Ver docs/DEPLOY.md.
 
 services:
 
   web:
-    image: ghcr.io/edumbrito/portal-agronomia-web:${PORTAL_TAG:-latest}
+    image: ghcr.io/edumbrito/portal-agronomia-web:${PORTAL_TAG:?defina PORTAL_TAG no .env}
     container_name: portal_agronomia_web
-    restart: always
+    restart: unless-stopped
     command: >
       gunicorn config.wsgi:application
       --bind 0.0.0.0:8000
@@ -65,9 +74,9 @@ services:
       start_period: 20s
 
   nginx:
-    image: ghcr.io/edumbrito/portal-agronomia-nginx:${PORTAL_TAG:-latest}
+    image: ghcr.io/edumbrito/portal-agronomia-nginx:${PORTAL_TAG:?defina PORTAL_TAG no .env}
     container_name: portal_agronomia_nginx
-    restart: always
+    restart: unless-stopped
     volumes:
       # Só leitura: quem escreve em media/ é o Gunicorn, pelo upload do Wagtail.
       - ./media:/app/media:ro

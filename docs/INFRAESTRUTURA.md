@@ -389,7 +389,7 @@ Todas obrigatórias, exceto onde indicado. O modelo está em `.env.example`.
 | `DB_NAME`, `DB_USER`, `DB_PASSWORD` | do database dedicado em `pve-db` |
 | `DB_HOST`, `DB_PORT` | `172.16.172.12` e `5432` |
 | `DJANGO_SETTINGS_MODULE` | `config.settings.production` |
-| `PORTAL_TAG` | etiqueta das imagens no GHCR. Opcional, default `latest` |
+| `PORTAL_TAG` | etiqueta das imagens no GHCR (`vX.Y.Z` ou sha curto). **Obrigatória, sem default** — o Compose recusa subir sem ela |
 | `SECURE_SSL_REDIRECT` | opcional, default `True`. Ver 3.2 antes de mexer |
 | `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE` | opcionais, default `True`. Ver abaixo |
 | `GUNICORN_WORKERS` | opcional, default 3 |
@@ -445,7 +445,7 @@ detalhado acima e registrado em `docs/SEGURANCA.md`:
 | Database em `pve-db` | `172.16.172.12:5432`, database e usuário `portal_agronomia`, PostgreSQL 16.15, cluster em UTF8 / pt_BR.UTF-8 |
 | Backup do database | Rotina centralizada no `pve-db` varrendo todos os databases, mais o PBS cobrindo as instâncias. O `pg_dump` do portal **sai** |
 | Porta no `pve-apps` | `172.16.172.11:8001`, dentro da faixa 8000–8099 já liberada no UFW |
-| Subdomínio | **pendente com a TI — é o bloqueio** |
+| Subdomínio | `portalagronomia.zonarural.ifsertao-pe.edu.br`, com certificado curinga da RNP no Caddy — definido depois, ver abaixo |
 
 ### Entregue
 
@@ -458,12 +458,19 @@ detalhado acima e registrado em `docs/SEGURANCA.md`:
 - [`DEPLOY.md`](DEPLOY.md) reescrito para este desenho, com rollback por
   etiqueta e sem a rotina de `pg_dump`
 
+### Primeiro deploy — 13/11/2026
+
+- Subdomínio `portalagronomia.zonarural.ifsertao-pe.edu.br`, TLS no Caddy do
+  `pve-proxy` com o certificado curinga da RNP
+- `pve-apps` em Ubuntu 24.04, stack em `/opt/stacks/portal-agronomia` sem clone
+  do repositório — o Compose chega por `scp`, ver [`DEPLOY.md`](DEPLOY.md)
+- Imagens da etiqueta `90b717d7a30a`, os dois containers `healthy`
+- `set_real_ip_from 172.16.172.10` conferido no log: o Nginx registra o IP real
+  do cliente
+
 ### Ainda em aberto
 
-- **O subdomínio.** Sem ele não se fecha `ALLOWED_HOSTS` nem
-  `WAGTAILADMIN_BASE_URL`. Dá para validar internamente pelo IP, mas **nenhum
-  conteúdo real deve entrar antes** — toda URL absoluta gerada nessa fase nasce
-  apontando para um endereço que morre depois
+- **Acesso externo.** O domínio só resolve no DNS interno do campus
 - **Quanto de disco tem o `/var/lib/docker` do `pve-apps`**, já que ele vai
   guardar as imagens de todas as aplicações
 - **Confirmar que o `media/` do portal fica em volume separado** da raiz do
