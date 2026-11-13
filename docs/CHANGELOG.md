@@ -7,8 +7,18 @@ Seções: Added, Changed, Fixed, Removed
 
 ## [Unreleased]
 
-### Fixed — peso do logo do LADI (13/11/2026)
+### Fixed — favicon e peso do logo do LADI (13/11/2026)
 
+Os dois itens vistos no log do Nginx no primeiro deploy.
+
+- **Favicon com o símbolo do IFSertãoPE**, recortado da marca oficial do campus.
+  `static/favicon.ico` (16, 32 e 48 px) e `static/apple-touch-icon.png`
+  (180 px, fundo branco), com `<link>` no `base.html`. O `docs/nginx.conf`
+  ganha um `location =` para cada um, porque navegador e robô pedem os dois na
+  raiz sem ler a tag — antes isso caía no Gunicorn e voltava 404
+- **Marcas oficiais em `assets/marca/`** (`Marca_CPZR.png` e `Logo.png`), como
+  fonte versionada fora do `static/`: não entram no `collectstatic` nem são
+  servidas
 - **`logoLADI.png` (1408×768, 692 KB) trocado por `logoLADI.webp` (704×384,
   26 KB).** Ele aparece no rodapé de todas as páginas, então era baixado na
   primeira visita de todo mundo. O tamanho novo é o dobro da maior altura em

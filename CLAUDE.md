@@ -596,13 +596,16 @@ decisão:
 
 Backlog miúdo, visto no log do Nginx no primeiro deploy (13/11/2026):
 
-- **`/favicon.ico` responde 404.** Inofensivo, mas gera uma linha de erro por
-  visitante novo. Saída: `<link rel="icon">` no template base apontando para um
-  arquivo em `static/`, ou um `location = /favicon.ico` no `docs/nginx.conf`
+- ~~**`/favicon.ico` responde 404.**~~ — **resolvido**: símbolo do IFSertãoPE
+  recortado da marca oficial do campus (`assets/marca/Marca_CPZR.png`), em
+  `static/favicon.ico` (16, 32 e 48 px) e `static/apple-touch-icon.png` (180 px,
+  fundo branco, porque o iOS pinta transparência de preto). `<link>` no
+  `base.html` e `location =` para os dois no `docs/nginx.conf`. As marcas
+  originais ficam em `assets/marca/`, fora do `static/`: não são servidas
 - ~~**`static/images/logoLADI.png` tem 692 KB**~~ — **resolvido**: virou
   `logoLADI.webp`, 704×384 e 26 KB, o dobro da maior altura em que é exibido
   (`h-44` na página Sobre), para tela retina. O PNG original fica no histórico
-  do git. O favicon vai usar a marca oficial do IFSertãoPE e espera o arquivo
+  do git.
 
 ---
 
